@@ -1,18 +1,8 @@
-﻿var solr = function () { };
-solr.ip = "192.168.56.101";
-solr.port = "8983";
-solr.url = "http://" + solr.ip + ":" + solr.port + "/solr/#/";
-solr.toString = function () {
-    return solr.url;
-};
-
-var docs = new Array();
-
-function printMediaListItem(doc) {
+﻿function printMediaListItem(doc) {
 	var html = '';
 	html += '<div class="media">';
 	html += '<a class="pull-left" href="#">'; 
-	html += '<img class="media-object" src="' + doc.imageUrl + '" alt="...">';
+	html += '<img class="media-object" src="' + doc.imageUrl + '" alt="..." height="64" width="64">';
 	html += '</a>';
 	html += '<div class="media-body">';
 	html += '<h4 class="media-heading">' + doc.title + '</h4>';
@@ -24,13 +14,16 @@ function printMediaListItem(doc) {
 }
 
 function init() {
-	var http = 'http://192.168.56.101:8983/solr/newsfeeds_shard1_replica1/select?q=*%3A*&wt=json&indent=true';
+	var http = 'http://localhost:8080/sos/resources/sol/';
+	console.log(http);
 	$.ajax({
 		url: http,
 		dataType: 'jsonp',
+		jsonpCallback: "callback",
+		jsonp: false,
 		type: "GET",
 		success: function (response) {
-			docs = response.response.docs;
+			var docs = response.response.docs;
 			for(var i = 0; i < docs.length; i++) {
 				var doc = new Object;
 				doc.title = docs[i].title[0];
