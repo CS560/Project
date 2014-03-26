@@ -9,6 +9,7 @@
 package kdm.data;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -24,15 +25,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 public class Start {
 
 	public static void main(String[] args) throws Exception {
-		wsdl();
+		String s = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+		s += wsdl();
+		System.out.println(s);
+		wsdl2url(s);
 	}
 
 	/** consume WSDL web service */
-	public static void wsdl() throws Exception {
+	public static String wsdl() throws Exception {
 		CPSCUpcSvcStub stub = new CPSCUpcSvcStub();
 		
 		//prevents: Exception in thread "main" org.apache.axis2.AxisFault: Transport error: 411 Error: Length Required
@@ -49,15 +54,11 @@ public class Start {
 		
 		//as of now, response will print as org.tempuri.CPSCUpcSvcStub$GetRecallByDateResponse@9c8834
 		//how to convert to Xml? A: http://axis.8716.n7.nabble.com/axis2-How-to-convert-XMLStreamReader-to-String-td4558.html
-		
-		XMLStreamReader reader = request.getPullParser(null); 
+		XMLStreamReader reader = response.getPullParser(null); 		
 		OMElement omElement = new StAXOMBuilder(reader).getDocumentElement(); 
 		String xml = omElement.toStringWithConsume(); 
-      
-		//OMElement omElement = request.getOMElement(null, null); 
-		//String xml = omElement.toStringWithConsume(); 
 		
-		System.out.println("Response: " + xml);
+		return xml;
 	}
 	
 	/** fetch HTML source from URL */
@@ -110,6 +111,14 @@ public class Start {
 		catch ( Exception e ) {
 		    e.printStackTrace();
 		}
+	}
+	public static void wsdl2url(String xml) throws Exception {
+		DOMParser parser = new DOMParser();
+		parser.parse(new InputSource(new ByteArrayInputStream(xml.getBytes("utf-8"))));
+		Document doc = parser.getDocument();
+		
+		NodeList root = doc.getChildNodes();
+		
 	}
 	
 	/** code from Dr. Dobbs at http://www.drdobbs.com/jvm/easy-dom-parsing-in-java/231002580 */
