@@ -41,25 +41,15 @@ public class Start {
 		xml += wsdl(startDate, endDate);
 
 		List urls = getUrls(xml);
-		
-		long delay = 3000;
+
 		for(int i = 0; i < urls.getItemCount(); i++){
-			final String uri = urls.getItem(i);
-			Timer timer = new Timer();
-			timer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					try {
-						html(uri);
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-					
-				}
-			}, delay * i);
-			
-			//System.out.println(urls.getItem(i));
+			String html = html(urls.getItem(i));
+			getCpscData(html);
 		}
+	}
+	public static void getCpscData(String html) {
+		char[] c = html.toCharArray();
+		System.out.println(c.length);
 	}
 
 	/** consume WSDL web service */
@@ -88,7 +78,7 @@ public class Start {
 	}
 	
 	/** fetch HTML source from URL */
-	public static void html(String uri) throws Exception {
+	public static String html(String uri) throws Exception {
 		URL url = new URL(uri);
 		URLConnection spoof = url.openConnection();
 
@@ -101,7 +91,7 @@ public class Start {
 		while ((strLine = in.readLine()) != null){
 		   finalHTML += strLine;
 		}
-		System.out.println(finalHTML);
+		return finalHTML;
 	}
 	
 	/** parse and search XML by node, attribute, or value */
