@@ -8,11 +8,14 @@
 
 package kdm.data;
 
+import java.awt.List;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -30,14 +33,37 @@ import org.xml.sax.InputSource;
 public class Start {
 
 	public static void main(String[] args) throws Exception {
-		String s = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
-		s += wsdl();
-		System.out.println(s);
-		wsdl2url(s);
+		
+		String startDate = "2014-03-15";
+		String endDate = "2014-03-18";
+		
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+		xml += wsdl(startDate, endDate);
+
+		List urls = getUrls(xml);
+		
+		long delay = 3000;
+		for(int i = 0; i < urls.getItemCount(); i++){
+			final String uri = urls.getItem(i);
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					try {
+						html(uri);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+					
+				}
+			}, delay * i);
+			
+			//System.out.println(urls.getItem(i));
+		}
 	}
 
 	/** consume WSDL web service */
-	public static String wsdl() throws Exception {
+	public static String wsdl(String startDate, String endDate) throws Exception {
 		CPSCUpcSvcStub stub = new CPSCUpcSvcStub();
 		
 		//prevents: Exception in thread "main" org.apache.axis2.AxisFault: Transport error: 411 Error: Length Required
@@ -45,8 +71,8 @@ public class Start {
 		stub._getServiceClient().getOptions().setProperty(HTTPConstants.HTTP_PROTOCOL_VERSION, HTTPConstants.HEADER_PROTOCOL_10);
 		
 		CPSCUpcSvcStub.GetRecallByDate request = new CPSCUpcSvcStub.GetRecallByDate();
-		request.setStartDate("2014-03-15");
-		request.setEndDate("2014-03-23");
+		request.setStartDate(startDate);
+		request.setEndDate(endDate);
 		request.setUserId("");
 		request.setPassword("");
 		
@@ -62,8 +88,8 @@ public class Start {
 	}
 	
 	/** fetch HTML source from URL */
-	public static void html() throws Exception {
-		URL url = new URL("http://www.cpsc.gov/en/Recalls/2014/Minga-Fair-Trade-Imports-Recalls-Wooden-Flipping-Acrobat-Toys/");
+	public static void html(String uri) throws Exception {
+		URL url = new URL(uri);
 		URLConnection spoof = url.openConnection();
 
 		//Spoof the connection so we look like a web browser
@@ -112,13 +138,27 @@ public class Start {
 		    e.printStackTrace();
 		}
 	}
-	public static void wsdl2url(String xml) throws Exception {
+	
+	/** gets the URLs out of the CPSC service response */
+	public static List getUrls(String xml) throws Exception {
 		DOMParser parser = new DOMParser();
 		parser.parse(new InputSource(new ByteArrayInputStream(xml.getBytes("utf-8"))));
 		Document doc = parser.getDocument();
 		
 		NodeList root = doc.getChildNodes();
 		
+		Node getRecallByDateResult = getNode("getRecallByDateResult", root);
+		Node message = getNode("message", getRecallByDateResult.getChildNodes());
+		Node results = getNode("results", message.getChildNodes());
+		Node result = results.getFirstChild();
+		
+		List urls = new List();
+		
+		while(result != null) {
+			urls.add(getNodeAttr("recallUrl", result));
+			result = result.getNextSibling();
+		}
+		return urls;
 	}
 	
 	/** code from Dr. Dobbs at http://www.drdobbs.com/jvm/easy-dom-parsing-in-java/231002580 */
