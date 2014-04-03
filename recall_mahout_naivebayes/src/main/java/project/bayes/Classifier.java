@@ -1,18 +1,6 @@
-/*
- * Copyright (c) 2010 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
+//RECALL PROJECT FOR KDM SUBJECT
+ 
 
 package project.bayes;
 
@@ -45,9 +33,7 @@ import org.apache.mahout.vectorizer.TFIDF;
 import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.Multiset;
 
-/**
- * http://www.chimpler.com
- */
+
 public class Classifier {
 	
 	public static Map<String, Integer> readDictionnary(Configuration conf, Path dictionnaryPath) {
@@ -106,16 +92,16 @@ public class Classifier {
 			}
 			
 			String[] tokens = line.split("\t", 47);
-			String tweetId = tokens[0];
-			String tweet = tokens[19];
+			String cmplid = tokens[0];
+			String cdescr = tokens[19];
 		
 
-			System.out.println("Complaint id: " + tweetId + "\t" + tweet);
+			System.out.println("Complaint id: " + cmplid + "\t" + cdescr);
 
 			Multiset<String> words = ConcurrentHashMultiset.create();
 			
-			// extract words from tweet
-			TokenStream ts = analyzer.tokenStream("text", new StringReader(tweet));
+			// extract words from complaint description
+			TokenStream ts = analyzer.tokenStream("text", new StringReader(cdescr));
 			CharTermAttribute termAtt = ts.addAttribute(CharTermAttribute.class);
 			ts.reset();
 			int wordCount = 0;
@@ -132,7 +118,7 @@ public class Classifier {
 			}
 
 			// create vector wordId => weight using tfidf
-			Vector vector = new RandomAccessSparseVector(10000);
+			Vector vector = new RandomAccessSparseVector(1000);
 			TFIDF tfidf = new TFIDF();
 			for (Multiset.Entry<String> entry:words.entrySet()) {
 				String word = entry.getElement();
