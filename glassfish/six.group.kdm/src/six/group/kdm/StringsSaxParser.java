@@ -71,6 +71,9 @@ public class StringsSaxParser extends DefaultHandler {
 		if(element.equalsIgnoreCase("url")) {
 			stringsObj.setUrl(temp);
 		}
+		if(element.equalsIgnoreCase("collection")) {
+			stringsObj.setCollection(temp);
+		}
 	}
 	
 	/**
@@ -81,7 +84,7 @@ public class StringsSaxParser extends DefaultHandler {
 		temp = new String(ac, i, j);
 	}
 	
-	public String getSolrUrl() {
-		return stringsObj.getUrl();
+	public Strings getStrings() {
+		return this.stringsObj;
 	}
 }
