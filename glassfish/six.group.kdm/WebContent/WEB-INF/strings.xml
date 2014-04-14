@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strings>
+  <solr>
+    <url>http://134.193.136.127:8983/solr</url>
+  </solr>
+</strings>
