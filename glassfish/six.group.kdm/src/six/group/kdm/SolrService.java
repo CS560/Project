@@ -2,11 +2,11 @@ package six.group.kdm;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import javax.annotation.PostConstruct;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -19,6 +19,8 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -115,6 +117,31 @@ public class SolrService {
 			return "{\"status\":\"SolrServerException\"}";
 		} finally {
 			return "{\"status\":\"success\"}";
+		}
+	}
+	
+	/**
+	 * Post JSON formatted Solr document to Solr server
+	 * @param document
+	 */
+	@POST
+	@Path("update")
+	@Consumes("application/json")
+	public void update(String document) {
+		HttpClient client = new DefaultHttpClient();
+		HttpPost post = new HttpPost(SOLR_URL + "/" + SOLR_COLLECTION + "/update");
+		
+		try {
+			StringEntity input = new StringEntity(document);
+			input.setContentType("application/json");
+			post.setEntity(input);
+			HttpResponse response = client.execute(post);
+		} catch (ClientProtocolException e) {
+			
+		} catch (UnsupportedEncodingException e) {
+			
+		} catch (IOException e) {
+			
 		}
 	}
 	
