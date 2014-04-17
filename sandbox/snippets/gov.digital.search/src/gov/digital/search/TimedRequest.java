@@ -2,13 +2,13 @@ package gov.digital.search;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONObject;
 
 import org.apache.http.HttpResponse;
@@ -21,18 +21,19 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 public class TimedRequest extends TimerTask {
 	
-	//this query reveals recalls begin in 1966: http://api.usa.gov/recalls/search.json?start_date=0000-01-01&end_date=1966-01-19
-	private static final Calendar EARLIEST_RECALL_DATE = new GregorianCalendar(1966, 0, 19);
-	//the data source including sort and results per page query params
-	private static final String BASE_URL = "http://api.usa.gov/recalls/search.json?sort=date&per_page=50";
-	//1000 = 50 data items per page * 20 max pages
-	private static final int MAX_RESULTS = 1000;
+	
+	private static final DateTime EARLIEST_RECALL_DATE = new DateTime(1966, 1, 19, 0, 0, 0); //this query reveals recalls begin in 1966: http://api.usa.gov/recalls/search.json?start_date=0000-01-01&end_date=1966-01-19
+	private static final String BASE_URL = "http://api.usa.gov/recalls/search.json?sort=date&per_page=50"; //the data source including sort and results per page query params
+	private static final int MAX_RESULTS = 1000; //1000 = 50 data items per page * 20 max pages
+	private static final int DELAY = 4000; //time to wait between sending web requests (don't overwhelm the server)
+	private static final int QUERY_TIME_SPAN_MONTHS = 2; //query time span
 	
 	private String url;
-	private String response;
-	Calendar end_date;
-	Calendar start_date;
-	String org;
+	private int page;
+	private int total;
+	private DateTime end_date;
+	private DateTime start_date;
+	private String org;
 	
 
 	/**
@@ -40,11 +41,12 @@ public class TimedRequest extends TimerTask {
 	 * @param org
 	 */
 	public TimedRequest(String org) {
+		this.page = 1;
 		this.org = org;
-		this.end_date = new GregorianCalendar();
-		this.start_date = new GregorianCalendar();
-		this.start_date.set(Calendar.MONTH, end_date.get(Calendar.MONTH) - 1);
-		new TimedRequest(org, start_date, end_date);
+		this.end_date = new DateTime();
+		this.start_date = new DateTime();
+		this.start_date = end_date.minusMonths(QUERY_TIME_SPAN_MONTHS);
+		new TimedRequest(org, start_date, end_date, page);
 	}
 	
 	/**
@@ -53,13 +55,29 @@ public class TimedRequest extends TimerTask {
 	 * @param start_date
 	 * @param end_date
 	 */
-	public TimedRequest(String org, Calendar start_date, Calendar end_date) {
+	public TimedRequest(String org, DateTime start_date, DateTime end_date, int page) {
+		this.page = page;
 		this.end_date = end_date;
 		this.start_date = start_date;
 		this.org = org;
-		this.setUrl(org, start_date, end_date);
+		this.setUrl(org, start_date, end_date, page);
+		
+		//start a timer to activate this class
 		Timer timer = new Timer();
-		timer.schedule(this, 1000);
+		timer.schedule(this, DELAY);
+	}
+	
+	public TimedRequest(String org, DateTime start_date, DateTime end_date, int page, int total) {
+		this.total = total;
+		this.page = page;
+		this.end_date = end_date;
+		this.start_date = start_date;
+		this.org = org;
+		this.setUrl(org, start_date, end_date, page);
+		
+		//start a timer to activate this class
+		Timer timer = new Timer();
+		timer.schedule(this, DELAY);
 	}
 	
 	/**
@@ -67,25 +85,49 @@ public class TimedRequest extends TimerTask {
 	 */
 	public void run() {
 		
-		System.out.println(url);
+		System.out.println("requesting data from: " + url);
 		String response = getResponse(url);
 		JSONObject json = new JSONObject(response);
-		System.out.println(json);
 		
 		//JSONObject j = json.getJSONObject("success");
 		JSONObject success = json.getJSONObject("success");
+		if(this.page == 1) {
+			total = success.getInt("total");
+		} else { 
+			//total was set during construction and reduced by the quantity processed during last iteration
+		}
+		System.out.println("received " + total + " results");
 		
-		System.out.println(success.getInt("total"));
+		if(total > MAX_RESULTS) {
+			//split the date range in half by shifting the start
+			long duration = new Duration(start_date, end_date).getStandardDays();
+			int days = (int)duration/2;
+			start_date = end_date.minusDays(days);
+		} else {
+			if(total > 50) {
+				//default request is page=1, so have this result in 2
+				int pages = 1 + total/50;
+				System.out.println("> 50 results: pages = " + pages);
+				
+				//for more than 1 page, start requesting additional pages
+				for(int page = 1; page < pages; page++) {
+					new TimedRequest(org, start_date, end_date, page + 1, total - 50); //get the next page, reduce internal total by 50
+				}
+			} else {
+				//reset range to months and continue
+				end_date = end_date.minusMonths(QUERY_TIME_SPAN_MONTHS);
+				start_date = end_date.minusMonths(QUERY_TIME_SPAN_MONTHS);
+				new TimedRequest(org, start_date, end_date, 1); //single page request
+			}
+		}
+		//wrap a new request - 1 month spread
 		
-		this.end_date.set(Calendar.MONTH, end_date.get(Calendar.MONTH) - 1);
-		this.start_date.set(Calendar.MONTH, start_date.get(Calendar.MONTH) - 1);
-		new TimedRequest(org, start_date, end_date);
 		
 		/* maxResults = 1000
 		 * end = today
-		 * start = today - one month
+		 * start = end - month
 		 * 
-		 * do //work backwards from now until zero results
+		 * do //work backwards from today until zero results
 		 *   wrap a web request:
 		 *     start a timer
 		 *     on timer complete:
@@ -96,11 +138,16 @@ public class TimedRequest extends TimerTask {
 		 *           wrap a web request:
 		 *       else
 		 *         process results
-		 *           writeOut(outputFormatWriter)
-		 *           start = end + 1 day
-		 *           end = end + 1 month
+		 *         if results > 50
+		 *           pages = 1 + results/2
+		 *           from count = 1 to pages do
+		 *             wrap a web request:
+		 *         else
+		 *           end = end - month
+		 *           start = end - month
 		 *           wrap a web request:
-		 * while (numResults > 0)
+		 *           
+		 * while (end > 1966)
 		 */
 	}
 	
@@ -142,16 +189,18 @@ public class TimedRequest extends TimerTask {
 	 * accessors
 	 */
 	public String getUrl() { return this.url; }
-	public void setUrl(String organization, Calendar start_date, Calendar end_date) {
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+	public void setUrl(String organization, DateTime start_date, DateTime end_date, int page) {
+		DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd");
 		StringBuilder query = new StringBuilder();
 		query.append(BASE_URL);
 		query.append("&organization=");
 		query.append(organization);
 		query.append("&start_date=");
-		query.append(df.format(start_date.getTime()));
+		query.append(start_date.toString(format));
 		query.append("&end_date=");
-		query.append(df.format(end_date.getTime()));
+		query.append(end_date.toString(format));
+		query.append("&page=");
+		query.append(page);
 		this.url = query.toString();
 	}
 }
