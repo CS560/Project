@@ -2,8 +2,6 @@ package gov.digital.search;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -25,8 +23,9 @@ public class Start {
 	static final String BASE_URL = "http://api.usa.gov/recalls/search.json?sort=date&per_page=50"; //the data source including sort and results per page query params
 	static final int MAX_RESULTS = 1000; //1000 = 50 data items per page * 20 max pages
 	static final int TIMER_DELAY = 1000; //time to wait between sending web requests (don't overwhelm the server)
-	static final int QUERY_TIME_SPAN_MONTHS = 2; //query time span
+	static final int QUERY_TIME_SPAN_MONTHS = 1; //query time span
 	
+	static int numInterruptions = 0;
 	static boolean running = false;	
 	static String org;
 	static String url;
@@ -42,7 +41,7 @@ public class Start {
 	 */	
 	public static void main(String[] args) {
 		init();
-		setTimer();
+		wrapRequest();
 	}
 	
 	static void init() {
@@ -50,26 +49,10 @@ public class Start {
 		currentPage = 1;
 		end_date = new DateTime();
 		start_date = end_date.minusMonths(2);
-		org = ORGANIZATIONS[0];
+		org = "CPSC+FDA+NHTSA+USDA";
 		setUrl();
 	}
-	
-	/**
-	 * govern pace with a timer
-	 */
-	static void setTimer() {
-		Timer timer = new Timer();
-		TimerTask task = new TimerTask() {
-			public void run() {
-				wrapRequest();
-				if(running) {
-					setTimer();
-				}
-			}
-		};
-		timer.schedule(task, TIMER_DELAY);
-	}
-	
+		
 	/**
 	 * do some heavy lifting with a request wrapper
 	 * manage the state of this class
@@ -98,9 +81,8 @@ public class Start {
 		} else {
 			if(totalResults > 50) {
 				currentPage++;
-				int totalPages = 1 + totalResults/50 - currentPage;
 				setUrl();
-				System.out.println(totalResults + " results to process\n" + (1 + totalPages) + " remaining pages to process");
+				System.out.println(totalResults + " results to process");
 			} else {
 				//reset range to months and continue
 				end_date = end_date.minusMonths(QUERY_TIME_SPAN_MONTHS);
@@ -110,6 +92,16 @@ public class Start {
 				System.out.println(totalResults + " results to process");
 			}		
 		}
+		
+		try {
+			Thread.sleep(TIMER_DELAY);
+		} catch (InterruptedException e) {
+			numInterruptions++;
+			System.out.println("Interrupted: ");
+			e.printStackTrace();
+		}
+		if(running)
+			wrapRequest();
 		//wrap a new request - 1 month spread
 
 		
