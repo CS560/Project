@@ -9,6 +9,8 @@ import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.json.JSONObject;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -65,7 +67,16 @@ public class TimedRequest extends TimerTask {
 	 */
 	public void run() {
 		
-		System.out.println(this.getUrl());
+		System.out.println(url);
+		String response = getResponse(url);
+		JSONObject json = new JSONObject(response);
+		System.out.println(json);
+		
+		//JSONObject j = json.getJSONObject("success");
+		JSONObject success = json.getJSONObject("success");
+		
+		System.out.println(success.getInt("total"));
+		
 		this.end_date.set(Calendar.MONTH, end_date.get(Calendar.MONTH) - 1);
 		this.start_date.set(Calendar.MONTH, start_date.get(Calendar.MONTH) - 1);
 		new TimedRequest(org, start_date, end_date);
