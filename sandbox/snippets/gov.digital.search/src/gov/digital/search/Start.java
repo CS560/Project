@@ -26,7 +26,8 @@ public class Start {
 	static final DateTime EARLIEST_RECALL_DATE = new DateTime(1966, 1, 19, 0, 0, 0); //this query reveals recalls begin in 1966: http://api.usa.gov/recalls/search.json?start_date=0000-01-01&end_date=1966-01-19
 	static final String BASE_URL = "http://api.usa.gov/recalls/search.json?sort=date&per_page=50"; //the data source including sort and results per page query params
 	static final int MAX_RESULTS = 1000; //1000 = 50 data items per page * 20 max pages
-	static final int TIMER_DELAY = 700; //time to wait between sending web requests (don't overwhelm the server)
+	//last time a delay of 700 completed, no problem
+	static final int TIMER_DELAY = 300; //time to wait between sending web requests (don't overwhelm the server)
 	static final int QUERY_TIME_SPAN_MONTHS = 2; //query time span
 	
 	static int numInterruptions = 0;
@@ -44,7 +45,8 @@ public class Start {
 	 * start firing web requests covering 2 month intervals
 	 * @param args
 	 */	
-	public static void main(String[] args) {
+	public Start() {	
+		
 		init();
 		do {
 			//termination criteria
@@ -59,6 +61,9 @@ public class Start {
 		} while (running);
 	}
 	
+	/**
+	 * set initial properties of the class
+	 */
 	static void init() {
 		running = true;
 		currentPage = 1;
@@ -188,6 +193,10 @@ public class Start {
 		query.append(currentPage);
 		url = query.toString();
 	}
+	
+	/**
+	 * a closing method to print a summary report
+	 */
 	static void finish() {
 		System.out.println("\n-----------------");
 		System.out.println("numInterruptions: " + numInterruptions);
