@@ -27,7 +27,7 @@ public class Start {
 	static final String BASE_URL = "http://api.usa.gov/recalls/search.json?sort=date&per_page=50"; //the data source including sort and results per page query params
 	static final int MAX_RESULTS = 1000; //1000 = 50 data items per page * 20 max pages
 	static final int TIMER_DELAY = 700; //time to wait between sending web requests (don't overwhelm the server)
-	static final int QUERY_TIME_SPAN_MONTHS = 1; //query time span
+	static final int QUERY_TIME_SPAN_MONTHS = 2; //query time span
 	
 	static int numInterruptions = 0;
 	static boolean running = false;	
