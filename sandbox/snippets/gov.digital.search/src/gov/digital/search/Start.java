@@ -54,6 +54,8 @@ public class Start {
 			}
 			if(running)
 				wrapRequest();
+			else
+				finish();
 		} while (running);
 	}
 	
