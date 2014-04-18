@@ -1,7 +1,12 @@
 package gov.digital.search;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -18,11 +23,10 @@ import org.json.JSONObject;
 
 public class Start {
 	
-	static final String[] ORGANIZATIONS = {"CPSC", "FDA", "NHTSA", "USDA"};
 	static final DateTime EARLIEST_RECALL_DATE = new DateTime(1966, 1, 19, 0, 0, 0); //this query reveals recalls begin in 1966: http://api.usa.gov/recalls/search.json?start_date=0000-01-01&end_date=1966-01-19
 	static final String BASE_URL = "http://api.usa.gov/recalls/search.json?sort=date&per_page=50"; //the data source including sort and results per page query params
 	static final int MAX_RESULTS = 1000; //1000 = 50 data items per page * 20 max pages
-	static final int TIMER_DELAY = 1000; //time to wait between sending web requests (don't overwhelm the server)
+	static final int TIMER_DELAY = 700; //time to wait between sending web requests (don't overwhelm the server)
 	static final int QUERY_TIME_SPAN_MONTHS = 1; //query time span
 	
 	static int numInterruptions = 0;
@@ -33,7 +37,8 @@ public class Start {
 	static int totalPages;
 	static int totalResults;
 	static DateTime end_date;
-	static DateTime start_date;	
+	static DateTime start_date;
+	static File dataFile;
 
 	/**
 	 * start firing web requests covering 2 month intervals
@@ -41,7 +46,15 @@ public class Start {
 	 */	
 	public static void main(String[] args) {
 		init();
-		wrapRequest();
+		do {
+			//termination criteria
+			Duration termination = new Duration(EARLIEST_RECALL_DATE, end_date);
+			if(termination.getMillis() < 0) {
+				running = false;
+			}
+			if(running)
+				wrapRequest();
+		} while (running);
 	}
 	
 	static void init() {
@@ -51,8 +64,16 @@ public class Start {
 		start_date = end_date.minusMonths(2);
 		org = "CPSC+FDA+NHTSA+USDA";
 		setUrl();
+		dataFile = new File("dataFile.txt");
+		try { //clear contents of the data file
+			PrintWriter writer = new PrintWriter(dataFile);
+			writer.print("");
+			writer.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("file not found");
+		}
 	}
-		
+	
 	/**
 	 * do some heavy lifting with a request wrapper
 	 * manage the state of this class
@@ -94,43 +115,21 @@ public class Start {
 		}
 		
 		try {
+			FileWriter fw = new FileWriter(dataFile.getName(), true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(success.toString() + "\n");
+			bw.close();
+		} catch (IOException e) {
+			
+		}
+		
+		try {
 			Thread.sleep(TIMER_DELAY);
 		} catch (InterruptedException e) {
 			numInterruptions++;
 			System.out.println("Interrupted: ");
 			e.printStackTrace();
 		}
-		if(running)
-			wrapRequest();
-		//wrap a new request - 1 month spread
-
-		
-		/* maxResults = 1000
-		 * end = today
-		 * start = end - month
-		 * 
-		 * do //work backwards from today until zero results
-		 *   wrap a web request:
-		 *     start a timer
-		 *     on timer complete:
-		 *       get JSON results
-		 *       if(numResults > maxResults)
-		 *         split the date range in half
-		 *           start = dateBetween(start, end)
-		 *           wrap a web request:
-		 *       else
-		 *         process results
-		 *         if results > 50
-		 *           pages = 1 + results/2
-		 *           from count = 1 to pages do
-		 *             wrap a web request:
-		 *         else
-		 *           end = end - month
-		 *           start = end - month
-		 *           wrap a web request:
-		 *           
-		 * while (end > 1966)
-		 */
 	}
 	/**
 	 * get a remote response in json format
@@ -186,5 +185,9 @@ public class Start {
 		query.append("&page=");
 		query.append(currentPage);
 		url = query.toString();
+	}
+	static void finish() {
+		System.out.println("\n-----------------");
+		System.out.println("numInterruptions: " + numInterruptions);
 	}
 }
