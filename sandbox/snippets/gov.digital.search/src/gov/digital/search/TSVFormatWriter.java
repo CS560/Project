@@ -11,34 +11,7 @@ import org.json.JSONObject;
 
 public class TSVFormatWriter {
 
-	String[] fields = {
-		"summary", 
-		"recall_number", 
-		"recall_date",
-		"organization",
-		"description",
-		"recall_url",
-		"hazards",
-		"upcs",
-		"manufacturers",
-		"countries",
-		"descriptions",
-		"product_types",
-		"defect_summary",
-		"potential_units_affected",
-		"component_description",
-		"code",
-		"corrective_summary",
-		"recall_date",
-		"report_date",
-		"initiator",
-		"manufacturer",
-		"notes",
-		"records",
-		"recall_subject",
-		"consequence_summary"
-	};
-	
+
 	File sourceFile;
 	
 	public static void main(String[] args) {
