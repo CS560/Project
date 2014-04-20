@@ -34,7 +34,10 @@
       <br><a href="http://134.193.136.127:8080/six.group.kdm/rest/solr/update">http://134.193.136.127:8080/six.group.kdm/rest/solr/update</a>
       <br><em>add documents to Solr index</em>
       <p>this can be easily tested with a plugin like <a href="https://addons.mozilla.org/en-US/firefox/addon/http-resource-test/">Firefox Http Resource Test</a></p>
-      <p><img src="http-resource-test.png"></p>
+      <p>
+        <em>Note: Set Content-Type to application/json under the Headers tab.</em>
+        <br><img src="http-resource-test.png">
+      </p>
       
     </div>
   </body>
