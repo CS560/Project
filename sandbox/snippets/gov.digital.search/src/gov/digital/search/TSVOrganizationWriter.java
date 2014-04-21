@@ -35,46 +35,11 @@ public class TSVOrganizationWriter {
 	BufferedWriter bwUsda;
 	
 	/**
-	 * initialize files, call from any constructor
-	 * @throws IOException
-	 */
-	private void init() throws IOException {
-		sourceFile = new File("dataFile.txt");
-
-		String[] files = {"cpsc.tsv", "nhtsa.tsv", "fda.tsv", "usda.tsv"};		
-		cpscFile = new File(files[0]);
-		nhtsaFile = new File(files[1]);
-		fdaFile = new File(files[2]);
-		usdaFile = new File(files[3]);
-		
-		//erase the output data files so the file writer can append
-		for (String file : files) {
-			try { //clear contents of the org data files
-				PrintWriter writer = new PrintWriter(file);
-				writer.print("");
-				writer.close();
-			} catch (FileNotFoundException e) {
-				System.out.println("file not found");
-			}
-		}
-		//initialize the file writers to append to new blank files
-		cpscWriter = new FileWriter(cpscFile.getName(), true);
-		nhtsaWriter = new FileWriter(nhtsaFile.getName(), true);
-		fdaWriter = new FileWriter(fdaFile.getName(), true);
-		usdaWriter = new FileWriter(usdaFile.getName(), true);
-		
-		bwCpsc = new BufferedWriter(cpscWriter);
-		bwNhtsa = new BufferedWriter(nhtsaWriter);
-		bwFda = new BufferedWriter(fdaWriter);
-		bwUsda = new BufferedWriter(usdaWriter);
-	}
-	
-	/**
 	 * constructor
 	 * line-by-line from the data file, write each record to its corresponding data file
 	 * @param fileName
 	 */
-	public TSVOrganizationWriter(String fileName) throws IOException {
+	public TSVOrganizationWriter(String fileName) {
 		
 		init();
 		
@@ -102,64 +67,168 @@ public class TSVOrganizationWriter {
 	}
 	
 	/**
+	 * initialize files, call from any constructor
+	 */
+	private void init() {
+		sourceFile = new File("dataFile.txt");
+
+		String[] files = {"cpsc.tsv", "nhtsa.tsv", "fda.tsv", "usda.tsv"};		
+		cpscFile = new File(files[0]);
+		nhtsaFile = new File(files[1]);
+		fdaFile = new File(files[2]);
+		usdaFile = new File(files[3]);
+		
+		//erase the output data files so the file writer can append
+		for (String file : files) {
+			try { //clear contents of the org data files
+				PrintWriter writer = new PrintWriter(file);
+				writer.print("");
+				writer.close();
+			} catch (FileNotFoundException e) {
+				System.out.println("file not found");
+			}
+		}
+		
+		try {
+			//initialize the file writers to append to new blank files
+			cpscWriter = new FileWriter(cpscFile.getName(), true);
+			nhtsaWriter = new FileWriter(nhtsaFile.getName(), true);
+			fdaWriter = new FileWriter(fdaFile.getName(), true);
+			usdaWriter = new FileWriter(usdaFile.getName(), true);
+		} catch (IOException e) {
+			System.out.println("init method throws exception during FileWriter construction: ");
+			e.printStackTrace();
+		}
+		
+		bwCpsc = new BufferedWriter(cpscWriter);
+		bwNhtsa = new BufferedWriter(nhtsaWriter);
+		bwFda = new BufferedWriter(fdaWriter);
+		bwUsda = new BufferedWriter(usdaWriter);
+	}
+	
+	/**
 	 * write organization data to its respective file
 	 * @param organization
 	 * @param record
 	 */
-	private void writeToFile(JSONObject record) throws IOException {
+	private void writeToFile(JSONObject record) {
 		String organization = record.getString("organization");
 		
-		if(organization.equalsIgnoreCase("cpsc")) {
-			CPSC cpsc = getCPSC(record);
-			bwCpsc.write(cpsc.toTSV() + "\n");
-		} else if(organization.equalsIgnoreCase("nhtsa")) {
-			
-		} else if(organization.equalsIgnoreCase("fda")) {
-			
-		} else if(organization.equalsIgnoreCase("usda")) {
-			
-		}
+		try {
+			if(organization.equalsIgnoreCase("cpsc")) {
+				CPSC cpsc = getCPSC(record);
+				System.out.println(cpsc.toTSV());
+				bwCpsc.write(cpsc.toTSV() + "\n");
+			} else if(organization.equalsIgnoreCase("nhtsa")) {
 				
+			} else if(organization.equalsIgnoreCase("fda")) {
+				FDA fda = getFDA(record);
+				System.out.println(fda.toTSV());
+				bwFda.write(fda.toTSV() + "\n");
+			} else if(organization.equalsIgnoreCase("usda")) {
+				
+			}	
+		} catch (IOException e) {
+			System.out.println("failed to write record: ");
+			e.printStackTrace();
+		}
 	}
+	
+	/**
+	 * parse json record to CPSC object
+	 * @param record
+	 * @return
+	 */
 	private CPSC getCPSC(JSONObject record) {
 		CPSC cpsc = new CPSC();
+		
 		cpsc.recall_number = record.getString("recall_number");
 		cpsc.recall_date = record.getString("recall_date");
+
 		//hazards
+		JSONArray hazards = record.getJSONArray("hazards");
+		cpsc.hazards[0] = hazards.getString(0);
+		
+		//upcs
 		try {
 			cpsc.upcs = record.getString("upcs");
 		} catch (JSONException e) {
 			cpsc.upcs = "";
 		}
 		cpsc.organization = record.getString("organization");
+		
 		//manufacturers
+		JSONArray manufacturers = record.getJSONArray("manufacturers");
+		cpsc.manufacturers[0] = hazards.getString(0);
+		
 		//countries
+		JSONArray countries = record.getJSONArray("countries");
+		cpsc.countries[0] = hazards.getString(0);
+		
 		//descriptions
+		JSONArray descriptions = record.getJSONArray("descriptions");
+		cpsc.descriptions[0] = hazards.getString(0);
+		
 		//product_types
+		JSONArray product_types = record.getJSONArray("product_types");
+		cpsc.product_types[0] = hazards.getString(0);
+		
 		cpsc.recall_url = record.getString("recall_url");
 		return cpsc;
 	}
+	
+	/**
+	 * parse a json record to NHTSA object
+	 * @param record
+	 * @return
+	 */
 	private NHTSA getNHTSA(JSONObject record) {
 		NHTSA nhtsa = new NHTSA();
 		return nhtsa;
 	}
+	
+	/**
+	 * parse a json record to FDA object
+	 * @param record
+	 * @return
+	 */
 	private FDA getFDA(JSONObject record) {
 		FDA fda = new FDA();
+		fda.summary = record.getString("summary");
+		fda.recall_number = record.getString("recall_number");
+		fda.recall_date = record.getString("recall_date");
+		fda.organization = record.getString("organization");
+		fda.description = record.getString("description");
+		fda.recall_url = record.getString("recall_url");
 		return fda;
 	}
+	
+	/**
+	 * parse a json record to USDA object
+	 * @param record
+	 * @return
+	 */
 	public USDA getUSDA(JSONObject record) {
 		USDA usda = new USDA();
 		return usda;
 	}
 	
-	private void finish() throws IOException {
-		cpscWriter.close();
-		nhtsaWriter.close();
-		fdaWriter.close();
-		usdaWriter.close();
-		bwCpsc.close();
-		bwNhtsa.close();
-		bwFda.close();
-		bwUsda.close();
+	/**
+	 * close writers. run this method at the end of any constructor
+	 */
+	private void finish() {
+		try {
+			cpscWriter.close();
+			nhtsaWriter.close();
+			fdaWriter.close();
+			usdaWriter.close();
+			bwCpsc.close();
+			bwNhtsa.close();
+			bwFda.close();
+			bwUsda.close();
+		} catch (IOException e) {
+			System.out.println("exception thrown during finish, trying to close file operations: ");
+			e.printStackTrace();
+		}
 	}
 }
