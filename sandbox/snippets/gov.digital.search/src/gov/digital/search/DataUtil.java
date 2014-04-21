@@ -57,7 +57,7 @@ public class DataUtil {
 			if(running)
 				wrapRequest();
 			else
-				finish();
+				finishGetData();
 		} while (running);
 	}
 	
@@ -197,7 +197,7 @@ public class DataUtil {
 	/**
 	 * a closing method to print a summary report
 	 */
-	static void finish() {
+	static void finishGetData() {
 		System.out.println("\n-----------------");
 		System.out.println("numInterruptions: " + numInterruptions);
 	}

@@ -1,6 +1,25 @@
 package gov.digital.search;
 
 public class NHTSA {
+	
+	public static String[] headers = {
+		"organization",
+		"recall_number",
+		"recall_date",
+		"recall_url",
+		"records",
+		"component_description",
+		"manufacturer",
+		"code",
+		"potential_units_affected",
+		"initiator",
+		"report_date",
+		"defect_summary",
+		"consequence_summary",
+		"corrective_summary",
+		"notes",
+		"recall_subject"
+	};
 
 	public NHTSA() {
 		
@@ -47,6 +66,18 @@ public class NHTSA {
 		builder.append("\t" + corrective_summary);
 		builder.append("\t" + notes);
 		builder.append("\t" + recall_subject);
+		return builder.toString();
+	}
+	/**
+	 * return the file headers as a TSV string
+	 */
+	public static String getTSVHeaders() {
+		StringBuilder builder = new StringBuilder();
+		if(headers.length > 0)
+			builder.append(headers[0]);
+		for(int i = 1; i < headers.length; i++) {
+			builder.append("\t" + headers[i]);
+		}
 		return builder.toString();
 	}
 }

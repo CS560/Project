@@ -2,6 +2,19 @@ package gov.digital.search;
 
 public class CPSC {
 
+	private static String[] headers = {
+		"organization",
+		"recall_number",
+		"recall_date",
+		"recall_url",
+		"manufacturers",
+		"product_types",
+		"descriptions",
+		"upcs",
+		"hazards",
+		"countries"
+	};
+	
 	public CPSC() {
 		
 	}
@@ -20,7 +33,7 @@ public class CPSC {
 	/**
 	 * return this object as a line of tab separated values
 	 */
-	public void toTSV() {
+	public String toTSV() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(organization);
 		builder.append("\t" + recall_number);
@@ -58,5 +71,19 @@ public class CPSC {
 		for(int i = 1; i < countries.length; i++) {
 			builder.append("," + countries[i]);
 		}
+		return builder.toString();
+	}
+	
+	/**
+	 * return the file headers as a TSV string
+	 */
+	public static String getTSVHeaders() {
+		StringBuilder builder = new StringBuilder();
+		if(headers.length > 0)
+			builder.append(headers[0]);
+		for(int i = 1; i < headers.length; i++) {
+			builder.append("\t" + headers[i]);
+		}
+		return builder.toString();
 	}
 }
