@@ -26,7 +26,7 @@ public class CPSC {
 	public String[] manufacturers;
 	public String[] product_types;
 	public String[] descriptions;
-	public String upcs;
+	public String[] upcs;
 	public String[] hazards;
 	public String[] countries;
 	
@@ -58,7 +58,11 @@ public class CPSC {
 			builder.append("," + descriptions[i]);
 		}
 
-		builder.append("\t" + upcs);
+		if(upcs.length > 0)
+			builder.append(upcs[0]);
+		for(int i = 1; i < upcs.length; i++) {
+			builder.append("," + upcs[i]);
+		}
 		
 		if(hazards.length > 0)
 			builder.append(hazards[0]);
