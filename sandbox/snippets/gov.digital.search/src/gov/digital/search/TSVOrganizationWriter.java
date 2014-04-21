@@ -88,6 +88,8 @@ public class TSVOrganizationWriter {
 				writer.close();
 			} catch (FileNotFoundException e) {
 				System.out.println("file not found");
+				e.printStackTrace();
+				System.exit(1);
 			}
 		}
 		
@@ -100,6 +102,7 @@ public class TSVOrganizationWriter {
 		} catch (IOException e) {
 			System.out.println("init method throws exception during FileWriter construction: ");
 			e.printStackTrace();
+			System.exit(1);
 		}
 		
 		bwCpsc = new BufferedWriter(cpscWriter);
@@ -113,7 +116,9 @@ public class TSVOrganizationWriter {
 			bwFda.write(new FDA().getTSVHeaders() + "\n");
 			bwUsda.write(new USDA().getTSVHeaders() + "\n");
 		} catch (IOException e) {
-			
+			System.out.println("Failed to write headers to file: ");
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 	
@@ -137,11 +142,14 @@ public class TSVOrganizationWriter {
 				System.out.println(fda.toTSV());
 				bwFda.write(fda.toTSV() + "\n");
 			} else if(organization.equalsIgnoreCase("usda")) {
-				
+				USDA usda = getUSDA(record);
+				System.out.println(usda.toTSV());
+				bwUsda.write(usda.toTSV() + "\n");
 			}	
 		} catch (IOException e) {
 			System.out.println("failed to write record: ");
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 	
@@ -228,6 +236,22 @@ public class TSVOrganizationWriter {
 	 */
 	private NHTSA getNHTSA(JSONObject record) {
 		NHTSA nhtsa = new NHTSA();
+		nhtsa.recall_number = record.getString("recall_number");
+		nhtsa.defect_summary = record.getString("defect_summary");
+		nhtsa.potential_units_affected = record.getString("potential_units_affected");
+		nhtsa.component_description = record.getString("component_description");
+		nhtsa.code = record.getString("code");
+		nhtsa.corrective_summary = record.getString("corrective_summary");
+		nhtsa.recall_date = record.getString("recall_date");
+		nhtsa.report_date = record.getString("report_date");
+		nhtsa.organization = record.getString("organization");
+		nhtsa.initiator = record.getString("initiator");
+		nhtsa.manufacturer = record.getString("manufacturer");
+		nhtsa.notes = record.getString("notes");
+		//records
+		nhtsa.recall_url = record.getString("recall_url");
+		nhtsa.recall_subject = record.getString("recall_subject");
+		nhtsa.consequence_summary = record.getString("consequence_summary");
 		return nhtsa;
 	}
 	
@@ -254,6 +278,12 @@ public class TSVOrganizationWriter {
 	 */
 	public USDA getUSDA(JSONObject record) {
 		USDA usda = new USDA();
+		usda.summary = record.getString("summary");
+		usda.recall_number = record.getString("recall_number");
+		usda.recall_date = record.getString("recall_date");
+		usda.organization = record.getString("organization");
+		usda.description = record.getString("description");
+		usda.recall_url = record.getString("recall_url");
 		return usda;
 	}
 	
@@ -273,6 +303,7 @@ public class TSVOrganizationWriter {
 		} catch (IOException e) {
 			System.out.println("exception thrown during finish, trying to close file operations: ");
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 }

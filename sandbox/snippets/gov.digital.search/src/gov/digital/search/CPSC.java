@@ -41,37 +41,37 @@ public class CPSC {
 		builder.append("\t" + recall_url);
 		
 		if(manufacturers.length > 0)
-			builder.append(manufacturers[0]);
+			builder.append("\t" + manufacturers[0]);
 		for(int i = 1; i < manufacturers.length; i++) {
 			builder.append("," + manufacturers[i]);
 		}
 
 		if(product_types.length > 0)
-			builder.append(product_types[0]);
+			builder.append("\t" + product_types[0]);
 		for(int i = 1; i < product_types.length; i++) {
 			builder.append("," + product_types[i]);
 		}
 		
 		if(descriptions.length > 0)
-			builder.append(descriptions[0]);
+			builder.append("\t" + descriptions[0]);
 		for(int i = 1; i < descriptions.length; i++) {
 			builder.append("," + descriptions[i]);
 		}
 
 		if(upcs.length > 0)
-			builder.append(upcs[0]);
+			builder.append("\t" + upcs[0]);
 		for(int i = 1; i < upcs.length; i++) {
 			builder.append("," + upcs[i]);
 		}
 		
 		if(hazards.length > 0)
-			builder.append(hazards[0]);
+			builder.append("\t" + hazards[0]);
 		for(int i = 1; i < hazards.length; i++) {
 			builder.append("," + hazards[i]);
 		}
 			
 		if(countries.length > 0)
-			builder.append(countries[0]);
+			builder.append("\t" + countries[0]);
 		for(int i = 1; i < countries.length; i++) {
 			builder.append("," + countries[i]);
 		}
