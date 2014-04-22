@@ -42,13 +42,15 @@ public class TSVOrganizationWriter {
 	 */
 	public TSVOrganizationWriter(String fileName) {
 		
-		init();
+		init(fileName);
 		
+		int linesRead = 0;
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(sourceFile));
 			String line;
 			while ((line = br.readLine()) != null) {
-				System.out.println("Processing line from dataFile.txt: " + line);
+				linesRead++;
+				System.out.println("Processing line " + linesRead + " from " + sourceFile.getName() + ": " + line);
 				//root
 				JSONObject json = new JSONObject(line);
 				//array of objects
@@ -71,8 +73,8 @@ public class TSVOrganizationWriter {
 	/**
 	 * initialize files, call from any constructor
 	 */
-	private void init() {
-		sourceFile = new File("dataFile.txt");
+	private void init(String fileName) {
+		sourceFile = new File(fileName);
 
 		String[] files = {"cpsc.tsv", "nhtsa.tsv", "fda.tsv", "usda.tsv"};		
 		cpscFile = new File(files[0]);
@@ -136,7 +138,9 @@ public class TSVOrganizationWriter {
 				System.out.println(cpsc.toTSV());
 				bwCpsc.write(cpsc.toTSV() + "\n");
 			} else if(organization.equalsIgnoreCase("nhtsa")) {
-				
+				NHTSA nhtsa = getNHTSA(record);
+				System.out.println(nhtsa.toTSV());
+				bwNhtsa.write(nhtsa.toTSV() + "\n");
 			} else if(organization.equalsIgnoreCase("fda")) {
 				FDA fda = getFDA(record);
 				System.out.println(fda.toTSV());
@@ -237,22 +241,148 @@ public class TSVOrganizationWriter {
 	private NHTSA getNHTSA(JSONObject record) {
 		NHTSA nhtsa = new NHTSA();
 		nhtsa.recall_number = record.getString("recall_number");
-		nhtsa.defect_summary = record.getString("defect_summary");
-		nhtsa.potential_units_affected = record.getString("potential_units_affected");
-		nhtsa.component_description = record.getString("component_description");
-		nhtsa.code = record.getString("code");
-		nhtsa.corrective_summary = record.getString("corrective_summary");
-		nhtsa.recall_date = record.getString("recall_date");
-		nhtsa.report_date = record.getString("report_date");
-		nhtsa.organization = record.getString("organization");
-		nhtsa.initiator = record.getString("initiator");
-		nhtsa.manufacturer = record.getString("manufacturer");
-		nhtsa.notes = record.getString("notes");
-		//records
-		nhtsa.recall_url = record.getString("recall_url");
-		nhtsa.recall_subject = record.getString("recall_subject");
-		nhtsa.consequence_summary = record.getString("consequence_summary");
+		
+		//defect_summary
+		try {
+			nhtsa.defect_summary = record.getString("defect_summary");
+		} catch (JSONException e) {
+			nhtsa.defect_summary = "";
+		}
+		
+		//potential_units_affected
+		try {
+			nhtsa.potential_units_affected = record.getString("potential_units_affected");
+		} catch (JSONException e) {
+			nhtsa.potential_units_affected = "";
+		}
+		
+		//component_description
+		try {
+			nhtsa.component_description = record.getString("component_description");
+		} catch (JSONException e) {
+			nhtsa.component_description = "";
+		}
+		
+		//code
+		try {
+			nhtsa.code = record.getString("code");
+		} catch (JSONException e) {
+			nhtsa.code = "";
+		}
+		
+		//corrective_summary
+		try {
+			nhtsa.corrective_summary = record.getString("corrective_summary");
+		} catch (JSONException e) {
+			nhtsa.corrective_summary = "";
+		}
+		
+		//recall_date
+		try {
+			nhtsa.recall_date = record.getString("recall_date");
+		} catch (JSONException e) {
+			nhtsa.recall_date = "";
+		}
+		
+		//report_date
+		try {
+			nhtsa.report_date = record.getString("report_date");
+		} catch (JSONException e) {
+			nhtsa.report_date = "";
+		}
+		
+		//organization
+		try {
+			nhtsa.organization = record.getString("organization");
+		} catch (JSONException e) {
+			nhtsa.organization = "";
+		}
+		
+		//initiator
+		try {
+			nhtsa.initiator = record.getString("initiator");
+		} catch (JSONException e) {
+			nhtsa.initiator = "";
+		}
+		
+		//manufacturer
+		try {
+			nhtsa.manufacturer = record.getString("manufacturer");
+		} catch (JSONException e) {
+			nhtsa.manufacturer = "";
+		}
+		
+		//notes
+		try {
+			nhtsa.notes = record.getString("notes");
+		} catch (JSONException e) {
+			nhtsa.notes = "";
+		}
+		
+		//nhtsa records
+		JSONArray records = record.getJSONArray("records");
+		nhtsa.records = new NHTSARecord[records.length()];
+		for(int i = 0; i < records.length(); i++) {
+			JSONObject nhtsar = records.getJSONObject(i);
+			nhtsa.records[i] = getNHTSARecord(nhtsar);
+		}
+		
+		//recall_url
+		try {
+			nhtsa.recall_url = record.getString("recall_url");
+		} catch (JSONException e) {
+			nhtsa.recall_url = "";
+		}
+		
+		//recall_subject
+		try {
+			nhtsa.recall_subject = record.getString("recall_subject");
+		} catch (JSONException e) {
+			nhtsa.recall_subject = "";
+		}
+		
+		//consequence_summary
+		try {
+			nhtsa.consequence_summary = record.getString("consequence_summary");
+		} catch (JSONException e) {
+			nhtsa.consequence_summary = "";
+		}
 		return nhtsa;
+	}
+	
+	/**
+	 * parse a json record to NHTSA object
+	 * @param record
+	 * @return
+	 */
+	private NHTSARecord getNHTSARecord(JSONObject record) {
+		NHTSARecord nhtsar = new NHTSARecord();
+		nhtsar.model = record.getString("model");
+		nhtsar.manufacturer = record.getString("manufacturer");
+		nhtsar.component_description = record.getString("component_description");
+		
+		try {
+			nhtsar.year = record.getInt("year");
+		} catch (JSONException e) {
+			nhtsar.year = -1;
+		}
+		
+		//manufacturing_end_date
+		try {
+			nhtsar.manufacturing_end_date = record.getString("manufacturing_end_date");
+		} catch (JSONException e) {
+			nhtsar.manufacturing_end_date = "";
+		}
+		
+		//manufacturing_begin_date
+		try {
+			nhtsar.manufacturing_begin_date = record.getString("manufacturing_begin_date");
+		} catch (JSONException e) {
+			nhtsar.manufacturing_begin_date = "";
+		}
+		nhtsar.make = record.getString("make");
+		nhtsar.recalled_component_id = record.getString("recalled_component_id");
+		return nhtsar;
 	}
 	
 	/**
@@ -292,14 +422,11 @@ public class TSVOrganizationWriter {
 	 */
 	private void finish() {
 		try {
-			cpscWriter.close();
-			nhtsaWriter.close();
-			fdaWriter.close();
-			usdaWriter.close();
 			bwCpsc.close();
 			bwNhtsa.close();
 			bwFda.close();
 			bwUsda.close();
+			System.out.println("-----------------------\nexecuted normally!");
 		} catch (IOException e) {
 			System.out.println("exception thrown during finish, trying to close file operations: ");
 			e.printStackTrace();
