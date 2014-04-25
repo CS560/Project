@@ -1,0 +1,35 @@
+America - 100
+Auto - 100
+Bus - 40
+Builder - 10
+california - 5
+cars - 16
+child - 5
+coach - 75
+company - 150
+commercial - 100
+corp - 400
+Christ - 30
+Electric - 30
+Engineering - 20
+Enterprises - 40
+Equip - 50 
+Industries - 50
+Interior - 10
+Internation - 40
+LLC - 200
+Ltd - 50
+London - 30
+Manufacturing - 100
+MFG. - 100
+Motor - 56
+Miriam - 139
+Morel - 258
+Mr. - 51
+Mrs. - 342
+National - 19
+Tech - 20
+Trailer - 63
+vehicle - 30
+
+
