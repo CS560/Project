@@ -6,8 +6,12 @@ import java.io.IOException;
 public class Start {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		
-		String inputFile = "fda-classified-result-01.txt";
-		String outputFile = "fda-classified-parsed-01.tsv";
+		String org = "usda";
+		String iteration = "02";
+		
+		String inputFile = org + "-classified-result-" + iteration + ".txt";
+		String outputFile = org + "-classified-parsed-" + iteration + ".tsv";
+	
 		new NBClassificationParser(inputFile, outputFile);
 		
 		
