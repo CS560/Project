@@ -100,6 +100,7 @@ public class CPSC {
 	}
 	
 	/**
+	 * INCOMPLETE: ONLY PRINTS URLS AT THIS POINT - EACH PAGE IS STRUCTURED IN A VARIETY OF WAYS
 	 * The http://search.digitalgov.gov/developer/recalls.html API lacks
 	 * summary description information. This method will use the URLS in the cpsc.tsv
 	 * file to gather more data from every page. That file is generated after 
