@@ -1,3 +1,15 @@
+/**
+ * This class will crawl the API outlined at
+ * http://search.digitalgov.gov/developer/recalls.html
+ * 
+ * From now until 1966 when the data begins, this class will collect all the results
+ * Output is printed in dataFile.txt
+ * 
+ * Data can be collected 50 results per page, 20 pages max, so this logic is set to 
+ * work inside a 1000-result limit. Results can be parsed to respective organization files
+ * using the TSVOrganizationWriter class.
+ */
+
 package gov.digital.search;
 
 import java.io.BufferedWriter;
