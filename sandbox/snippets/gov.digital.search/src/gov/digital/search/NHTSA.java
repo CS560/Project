@@ -1,5 +1,13 @@
 package gov.digital.search;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
+
 public class NHTSA {
 	
 	public static String[] headers = {
@@ -79,5 +87,32 @@ public class NHTSA {
 			builder.append("\t" + headers[i]);
 		}
 		return builder.toString();
+	}
+	public static HashSet<String> printColumnAsHashSet(int index) 
+		throws FileNotFoundException, IOException {
+		HashSet<String> set = new HashSet<String>();
+		File inputFile = new File("nhtsa.tsv");
+		BufferedReader br = new BufferedReader(new FileReader(inputFile));
+		
+		//burn 1 line of headers
+		br.readLine();
+		
+		String line;
+		while((line = br.readLine()) != null) {
+			
+			//split by tabs, id is index 1, url is index 3
+			String[] fields = line.split("\\t");
+			set.add(fields[index].trim());
+		}	
+		Iterator<String> iterator = set.iterator();
+		System.out.println("iterating set with " + set.size() + " items");
+		int count = 0;
+		while(iterator.hasNext()) {
+			System.out.print(count++ + "\t");
+			System.out.println(iterator.next());
+		}
+		
+		
+		return set;
 	}
 }
