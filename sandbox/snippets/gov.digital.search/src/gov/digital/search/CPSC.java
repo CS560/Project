@@ -8,6 +8,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 public class CPSC {
 
 	private static String[] headers = {
@@ -130,13 +135,31 @@ public class CPSC {
 		String line;
 		while((line = br.readLine()) != null) {
 			
-			//split by tabs, index 3 = recall_url
-			String url = line.split("\\t")[3].trim();
+			//split by tabs, id is index 1, url is index 3
+			String[] fields = line.split("\\t");
+			String id = fields[1].trim();
+			String url = fields[3].trim();			
 			
-			//for every url, visit the web page and fetch the following categories of data
+			//for every url, inspect its style and decide an action
+			//visit the web page and fetch the following categories of data
 			System.out.println(url);
 
+			//if url does not contain .aspx? then it is restful and has certain useful header meta properties
+			if(url.indexOf(".aspx?") == -1) {
+				Document doc = Jsoup.connect(url).get();
+				Elements meta = doc.select("meta");
+				Element metaDescription = meta.get(2);
+				System.out.print(metaDescription.attr("name") + ": ");
+				System.out.println(metaDescription.attr("content"));
+			} else { //then asp query params lead to a fairly useless data file with potentially lots of results
+				System.out.println("ASPX params");
+			}
 			
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				
+			}
 			/*
 			//every 2 lines is a result, so read a new line
 			//next line looks like this:
