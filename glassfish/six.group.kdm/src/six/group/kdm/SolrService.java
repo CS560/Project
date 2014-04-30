@@ -10,6 +10,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
@@ -88,6 +89,19 @@ public class SolrService {
 		String query = "select?q=" + q + "&wt=json&defType=dismax&qf=title+description";
 		String response = getResponse(SOLR_URL + "/" + SOLR_COLLECTION + "/" + query);
 		return response;
+	}
+	
+	@GET
+	@Path("db/{action}")
+	@Produces("application/json")
+	public String dbUpdate(@PathParam("action") String action) {
+		String notice = "";
+		if(action.equalsIgnoreCase("update")) {
+			notice = "update requested";
+		} else {
+			notice = "i don't know what you're trying to do";
+		}
+		return notice;
 	}
 	
 	/**
