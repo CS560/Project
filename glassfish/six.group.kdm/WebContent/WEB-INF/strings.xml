@@ -4,4 +4,7 @@
     <url>http://134.193.136.127:8983/solr</url>
     <collection>group6_shard1_replica1</collection>
   </solr>
+  <mongo>
+  	<host>54.186.3.69</host>
+  </mongo>
 </strings>

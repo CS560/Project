@@ -74,6 +74,9 @@ public class StringsSaxParser extends DefaultHandler {
 		if(element.equalsIgnoreCase("collection")) {
 			stringsObj.setCollection(temp);
 		}
+		if(element.equalsIgnoreCase("host")) {
+			stringsObj.setMongoHost(temp);
+		}
 	}
 	
 	/**

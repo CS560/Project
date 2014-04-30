@@ -32,6 +32,7 @@ public class SolrService {
 	
 	private String SOLR_URL = "";
 	private String SOLR_COLLECTION = "";
+	private String MONGO_HOST = "";
 	
 	/**
 	 * Initialize class variables
@@ -44,6 +45,7 @@ public class SolrService {
 		Strings stringsObj = parser.getStrings();
 		SOLR_URL = stringsObj.getUrl();
 		SOLR_COLLECTION = stringsObj.getCollection();
+		MONGO_HOST = stringsObj.getMongoHost();
 	}
 	/**
 	 * prints the class variable values
@@ -55,6 +57,7 @@ public class SolrService {
 		StringBuilder builder = new StringBuilder();
 		builder.append("<div>" + SOLR_URL + "</div>");
 		builder.append("<div>" + SOLR_COLLECTION + "</div>");
+		builder.append("<div>" + MONGO_HOST + "</div>");
 		return builder.toString();
 	}
 
