@@ -7,10 +7,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 public class CPSC {
@@ -105,16 +110,39 @@ public class CPSC {
 	}
 	
 	/**
-	 * INCOMPLETE: ONLY PRINTS URLS AT THIS POINT - EACH PAGE IS STRUCTURED IN A VARIETY OF WAYS
 	 * The http://search.digitalgov.gov/developer/recalls.html API lacks
 	 * summary description information. This method will use the URLS in the cpsc.tsv
 	 * file to gather more data from every page. That file is generated after 
 	 * TSVOrganizationWriter.java parses DataUtil.java output
 	 * @param fileName
 	 */
-	public static void getMoreData(String inputFileName, String outputFileName)
-		throws FileNotFoundException, IOException {
+	public static void getMoreData(String inputFileName, String outputFileName) {
+		
+		//spread the requests out
+		final int SLEEP_TIMER = 601;
+		
+		//list to catch errors from HTTP status exceptions
+		ArrayList<String> list = new ArrayList<String>();
+		
+		//list to catch errors from format parser .archived and .details
+		ArrayList<String> problems = new ArrayList<String>();
+		
+		//counters
+		int httpErrors = 0;
+		int numRecords = 0;
+		
+		//the fields i am looking for in each visit to a page
+		String[] data = {
+				"units",
+				"description",
+				"incidents_injuries",
+				"remedy",
+				"sold_exclusively_at",
+				"importer",
+				"manufactured_in",
+			};
 
+		//file stuff
 		File inputFile;
 		File outputFile;
 		BufferedReader br;
@@ -124,67 +152,145 @@ public class CPSC {
 		inputFile = new File(inputFileName);
 		outputFile = new File(outputFileName);
 		
-		//set readers and writers
-		br = new BufferedReader(new FileReader(inputFile));
-		bw = new BufferedWriter(new FileWriter(outputFile));
-		
-		//burn 1 line of headers
-		br.readLine();
-		
-		//loop: read then write, over and over
-		String line;
-		while((line = br.readLine()) != null) {
-			
-			//split by tabs, id is index 1, url is index 3
-			String[] fields = line.split("\\t");
-			String id = fields[1].trim();
-			String url = fields[3].trim();			
-			
-			//for every url, inspect its style and decide an action
-			//visit the web page and fetch the following categories of data
-			System.out.println(url);
+		//set readers and writers, do everything
+		try {
+			br = new BufferedReader(new FileReader(inputFile));
+			bw = new BufferedWriter(new FileWriter(outputFile));
 
-			//if url does not contain .aspx? then it is restful and has certain useful header meta properties
-			if(url.indexOf(".aspx?") == -1) {
-				Document doc = Jsoup.connect(url).get();
-				Elements meta = doc.select("meta");
-				Element metaDescription = meta.get(2);
-				System.out.print(metaDescription.attr("name") + ": ");
-				System.out.println(metaDescription.attr("content"));
-			} else { //then asp query params lead to a fairly useless data file with potentially lots of results
-				System.out.println("ASPX params");
-			}
+			//burn 1 line of headers in the read file
+			br.readLine();
 			
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
+			//loop: read then write, over and over
+			String line;
+			while((line = br.readLine()) != null) {
+				numRecords++;
 				
+				//split by tabs, id is index 1, url is index 3
+				String[] fields = line.split("\\t");
+				String id = fields[1].trim(); //id
+				String url = fields[3].trim(); //url
+				
+				StringBuilder builder = new StringBuilder();
+				builder.append(id);
+				
+				//for every url, inspect its style and decide an action
+				//visit the web page and fetch the following categories of data
+				//if url does not contain .aspx? then it is restful and has certain useful header meta properties
+				if(url.indexOf(".aspx?") == -1) {
+					try {
+						
+						Document doc = Jsoup.connect(url).get();
+						Elements details = doc.select("div.details > *");
+						Elements archived = doc.select("div.archived > *");
+						
+						//flag for 2 formats - will go false if either not found
+						boolean optimistic = true;
+						
+						//collection for a variety of data points, used to later print in order
+						Map<String,String> pairs = new HashMap<String,String>();
+						
+						// .details exist 
+						try {
+							for(Element ele : details) {
+								if(ele.tagName().equalsIgnoreCase("h5")) {
+									Element sibling = ele.firstElementSibling();
+									System.out.println(sibling.text());
+									//units
+									if(ele.text() == "Units") {
+										
+									}
+										
+										
+										//description
+										
+										//incidents_injuries
+										
+										//remedy
+										
+										//sold_exclusively_at
+										
+										//importer
+										
+										//manufactured_in
+									
+									//pairs.put(", value)
+								}
+							}
+						} catch (NullPointerException e) {
+							optimistic = false;
+						}
+						
+						// .archived exists
+						try {
+							for(Element ele : archived) {
+								System.out.println(ele.text());
+								
+								
+								//units
+								
+								//description
+								
+								//incidents_injuries
+								
+								//remedy
+								
+								//sold_exclusively_at
+								
+								//importer
+								
+								//manufactured_in
+							}
+						} catch (NullPointerException e) {
+							optimistic = false;
+						}
+						
+						//termination condition
+						if(!optimistic) {
+							problems.add("new format found - check url: " + url);
+						}
+
+
+						builder.append("\n");
+						System.out.println(numRecords + ": " + builder.toString());
+						bw.write(builder.toString());
+
+					} catch (HttpStatusException e) {
+						httpErrors++;
+						list.add(e.getStatusCode() + " - " + e.getMessage());
+					}
+						
+				} else { //then asp query params lead to a fairly useless data file with potentially lots of results
+					System.out.println(numRecords + "ASPX params");
+				}
+				
+				try {
+					Thread.sleep(SLEEP_TIMER);
+				} catch (InterruptedException e) {
+					System.out.println("thread exception (what throws this kind of exception, anyway?): ");
+					e.printStackTrace();
+					System.exit(1);
+				}
 			}
-			/*
-			//every 2 lines is a result, so read a new line
-			//next line looks like this:
-			//contamination: -377.0525363173781  mislabeled: -306.024402843043 => mislabeled
-			String labelLine = br.readLine();
-			String[] classifications = labelLine.split("=>"); //to the right of this is the actual classification
-			
-			//everything else split to classification/weight pairs
-			//removes trailing, leading, and double spaces
-			String[] labels = classifications[0].trim().replaceAll("  ", " ").split(" "); 
-			
-			//build the output TSV lines
-			StringBuilder builder = new StringBuilder();
-			builder.append(classifications[1].trim() + "\t");
-			builder.append(id);
-			for(int i = 0; i < labels.length; i++) {
-				if(!labels[i].equalsIgnoreCase("\t"));
-					builder.append("\t" + labels[i]);
+			br.close();
+			bw.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("file not found: ");
+			e.printStackTrace();
+			System.exit(1);
+		} catch (IOException e) {
+			System.out.println("problem with file writer: ");
+			e.printStackTrace();
+			System.exit(1);
+		} finally {
+			System.out.println("\n\n-----------------------\nHTTP ERROS LIST");
+			System.out.println("There were " + httpErrors + " errors");
+			for(String error : list) {
+				System.out.println(error);
 			}
-			System.out.println(builder.toString());
-			bw.write(builder.toString() + "\n");
-			*/
+			System.out.println("\n\n-----------------------\nFORMAT PROBLEMS");
+			for(String error : problems) {
+				System.out.println(error);
+			}
 		}
-		
-		br.close();
-		bw.close();
 	}
 }

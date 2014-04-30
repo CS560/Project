@@ -2,12 +2,13 @@ package gov.digital.search;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Start {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		
+
 		CPSC.getMoreData("cpsc.tsv", "cpsc-expanded.tsv");
-	
+
 		/** code to parse an output file from from TweetsToTSV class
 		 * make sure the input file is named such as 
 		 * "usda-classified-result-02.txt"
