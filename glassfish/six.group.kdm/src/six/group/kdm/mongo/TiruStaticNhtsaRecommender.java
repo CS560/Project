@@ -38,7 +38,7 @@ public class TiruStaticNhtsaRecommender {
 		recommender.put("Electronics","Electronics::0,Auto::-1,Children::-1,Company::1,Others::-1,USA::-1,Limited liability company::-1,Buisiness::-1,Engineering::-1,Coaches::-1,Manufacturing company::-1,Industries::-1,Equipment::1,Trailer::-1,Corporation::-1,California::-1,International::-1,Interiors::-1,Private Ltd company::-1,National::-1,Buildings::1,Men::-1,Electronics::1,Commercial::-1,");
 		recommender.put("Commercial","Commercial::0,Auto::-1,Children::-1,Company::1,Others::-1,USA::-1,Limited liability company::-1,Buisiness::-1,Engineering::-1,Coaches::-1,Manufacturing company::1,Industries::-1,Equipment::-1,Trailer::-1,Corporation::-1,California::-1,International::-1,Interiors::-1,Private Ltd company::-1,National::-1,Buildings::-1,Men::-1,Electronics::-1,Commercial::1,");
 	}
-	public ArrayList<WeightedLabel> recommend(String username) throws UnknownHostException {
+	public String recommend(String username) throws UnknownHostException {
 		//sorter to produce a weighted value
 		ArrayList<WeightedLabel> sorter = new ArrayList<WeightedLabel>();
 		//the keys used in the recommender structure
@@ -62,25 +62,38 @@ public class TiruStaticNhtsaRecommender {
 		while(subs.hasNext()) {
 			//each item in subs is a key
 			String key = subs.next();
-			//each key accesses one line from the recommender
-			String line = recommender.get(key);
-			//every line is delimited by commas
-			String[] commaSplit = line.split(",");
-			//for every delimited colon, there is an internal string,int pair
-			for (String s : commaSplit) {
-				String[] colonSplit = s.split("::");
-				String innerKey = colonSplit[0];
-				int weight = Integer.parseInt(colonSplit[1]);
-				//as long as the keys don't match, use the data
-				if(!key.equals(innerKey)) {
-					//weigh the categories
-					categories.get(innerKey).weight += weight;
+			//avoid the empty string case
+			if(!key.equalsIgnoreCase("")) {
+				//each key accesses one line from the recommender
+				String line = recommender.get(key);
+				//every line is delimited by commas
+				String[] commaSplit = line.split(",");
+				//for every delimited colon, there is an internal string,int pair
+				for (String s : commaSplit) {
+					String[] colonSplit = s.split("::");
+					String innerKey = colonSplit[0];
+					int weight = Integer.parseInt(colonSplit[1]);
+					//as long as the keys don't match, use the data
+					if(!key.equals(innerKey)) {
+						//weigh the categories
+						categories.get(innerKey).weight += weight;
+					}
 				}
 			}
 		}
 		//add the categories to the sorter and sort
 		sorter.addAll(categories.values());
 		Collections.sort(sorter, new WeightedLabelComparator());
-		return sorter;
+		String returnString = "";
+		//first item is always the self, so start at index 1
+		if (sorter.size() > 0) {
+			returnString += sorter.get(1).label;
+			System.out.println(sorter.get(1).label + ": " + sorter.get(1).weight);
+		}
+		for(int i = 2; i < sorter.size(); i++) {
+			returnString += "," + sorter.get(i).label;
+			System.out.println(sorter.get(i).label + ": " + sorter.get(i).weight);
+		}
+		return returnString;
 	}	
 }
