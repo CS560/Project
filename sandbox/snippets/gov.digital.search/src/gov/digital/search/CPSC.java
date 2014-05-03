@@ -117,6 +117,21 @@ public class CPSC {
 	 * @param fileName
 	 */
 	public static void getMoreData(String inputFileName, String outputFileName) {
+		/*
+		 * there's a missing piece here - data mapping to tsv headers:
+		 * name_of_product
+		 *	units
+		 *	manufacturer
+		 *	hazard
+		 *	description
+		 *	incidents_injuries
+		 *	remedy
+		 *	sold_to
+		 *	sold_exclusively_at
+		 *	importer
+		 *	manufactured_in
+		 *	consumer_contact
+		 */
 		
 		//spread the requests out
 		final int SLEEP_TIMER = 601;
@@ -169,6 +184,7 @@ public class CPSC {
 				String[] fields = line.split("\\t");
 				String id = fields[1].trim(); //id
 				String url = fields[3].trim(); //url
+				System.out.println(url);
 				
 				StringBuilder builder = new StringBuilder();
 				builder.append(id);
@@ -180,8 +196,10 @@ public class CPSC {
 					try {
 						
 						Document doc = Jsoup.connect(url).get();
-						Elements details = doc.select("div.details > *");
-						Elements archived = doc.select("div.archived > *");
+						//Elements details = doc.select("div.details > *");
+						//Elements archived = doc.select("div.archived > *");
+						Elements details = doc.select("strong");
+						Elements archived = doc.select("strong");
 						
 						//flag for 2 formats - will go false if either not found
 						boolean optimistic = true;
@@ -235,43 +253,77 @@ public class CPSC {
 						
 						// .archived exists
 						try {
+							//making an assumption here: <strong> tags indicate the data we are collecting
 							for(Element ele : archived) {
-								
-								//units
-								if(ele.text().equalsIgnoreCase("units")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//description
-								if(ele.text().equalsIgnoreCase("description")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//incidents_injuries
-								if(ele.text().equalsIgnoreCase("incidents_injuries")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//remedy
-								if(ele.text().equalsIgnoreCase("remedy")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//sold_exclusively_at
-								if(ele.text().equalsIgnoreCase("sold_exclusively_at")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//importer
-								if(ele.text().equalsIgnoreCase("importer")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//manufactured_in
-								if(ele.text().equalsIgnoreCase("manufactured_in")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
+								System.out.println(ele.text());
+								//another assumption: at least one <p> exists with a collection of <strong> inside
+								//for every <strong> inside a <p>, farm data								
+								try {
+									String category = ele.text().split(":")[0];
+									String content = ele.nextSibling().toString();
+									//name_of_product
+									if(category.equalsIgnoreCase("Name of product")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//units
+									if(category.equalsIgnoreCase("units")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//manufacturer
+									if(category.equalsIgnoreCase("manufacturer")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//hazard
+									if(category.equalsIgnoreCase("hazard")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//description
+									if(category.equalsIgnoreCase("description")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//sold_to
+									if(category.equalsIgnoreCase("sold to")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//incidents_injuries
+									if(category.equalsIgnoreCase("incidents/injuries")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//remedy
+									if(category.equalsIgnoreCase("remedy")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//sold_exclusively_at
+									if(category.equalsIgnoreCase("sold exclusively at")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//importer
+									if(category.equalsIgnoreCase("importer")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//manufactured_in
+									if(category.equalsIgnoreCase("manufactured_in")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+									//consumer_contact
+									if(category.equalsIgnoreCase("consumer contact")) {
+										System.out.print(category + " - ");
+										System.out.println(content);
+									}
+								} catch(IndexOutOfBoundsException e) {
+									//do nothing - the element has no child tag and is not used
+								}			
 							}
 						} catch (NullPointerException e) {
 							optimistic = false;

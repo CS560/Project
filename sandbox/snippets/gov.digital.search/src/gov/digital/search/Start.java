@@ -6,7 +6,7 @@ import java.io.IOException;
 public class Start {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 
-		CPSC.getMoreData("cpsc.tsv", "cpsc-expanded.tsv");
+		CPSC.getMoreData("cpsc2.tsv", "cpsc-expanded.tsv");
 
 		/** code to parse an output file from from TweetsToTSV class
 		 * make sure the input file is named such as 
