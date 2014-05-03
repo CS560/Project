@@ -190,30 +190,43 @@ public class CPSC {
 						Map<String,String> pairs = new HashMap<String,String>();
 						
 						// .details exist 
+						//it's possible an image can be collected from the 2nd table on every page
 						try {
 							for(Element ele : details) {
-								if(ele.tagName().equalsIgnoreCase("h5")) {
-									Element sibling = ele.firstElementSibling();
-									System.out.println(sibling.text());
-									//units
-									if(ele.text() == "Units") {
-										
-									}
-										
-										
-										//description
-										
-										//incidents_injuries
-										
-										//remedy
-										
-										//sold_exclusively_at
-										
-										//importer
-										
-										//manufactured_in
-									
-									//pairs.put(", value)
+								//units
+								if(ele.text().equalsIgnoreCase("Units")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
+								//description
+								if(ele.text().equalsIgnoreCase("Description")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
+								//incidents_injuries
+								if(ele.text().equalsIgnoreCase("Incidents/Injuries")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
+								//remedy
+								if(ele.text().equalsIgnoreCase("Remedy")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
+								//sold_exclusively_at
+								if(ele.text().equalsIgnoreCase("Sold exclusively at")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
+								//importer
+								if(ele.text().equalsIgnoreCase("Importer")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
+								//manufactured_in
+								if(ele.text().equalsIgnoreCase("Manufactured in")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
 								}
 							}
 						} catch (NullPointerException e) {
@@ -223,22 +236,42 @@ public class CPSC {
 						// .archived exists
 						try {
 							for(Element ele : archived) {
-								System.out.println(ele.text());
-								
 								
 								//units
-								
+								if(ele.text().equalsIgnoreCase("units")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
 								//description
-								
+								if(ele.text().equalsIgnoreCase("description")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
 								//incidents_injuries
-								
+								if(ele.text().equalsIgnoreCase("incidents_injuries")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
 								//remedy
-								
+								if(ele.text().equalsIgnoreCase("remedy")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
 								//sold_exclusively_at
-								
+								if(ele.text().equalsIgnoreCase("sold_exclusively_at")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
 								//importer
-								
+								if(ele.text().equalsIgnoreCase("importer")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
 								//manufactured_in
+								if(ele.text().equalsIgnoreCase("manufactured_in")) {
+									System.out.print(ele.text() + " - ");
+									System.out.println(ele.nextElementSibling().text());
+								}
 							}
 						} catch (NullPointerException e) {
 							optimistic = false;
@@ -249,7 +282,6 @@ public class CPSC {
 							problems.add("new format found - check url: " + url);
 						}
 
-
 						builder.append("\n");
 						System.out.println(numRecords + ": " + builder.toString());
 						bw.write(builder.toString());
@@ -258,8 +290,8 @@ public class CPSC {
 						httpErrors++;
 						list.add(e.getStatusCode() + " - " + e.getMessage());
 					}
-						
 				} else { //then asp query params lead to a fairly useless data file with potentially lots of results
+					//actually, i think this is a page with links to more pages, so a recursive or iterative parser is needed
 					System.out.println(numRecords + "ASPX params");
 				}
 				
