@@ -7,15 +7,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 public class CPSC {
@@ -108,6 +106,19 @@ public class CPSC {
 		}
 		return builder.toString();
 	}
+	/**
+	 * print headers appropriate for the getMoreData method
+	 * @return
+	 */
+	public static String getMoreDataTSVHeaders() {
+		String[] headers = {"name_of_product","manufacturer","hazard","sold_to","sold_exclusively_at","units","description","incidents_injuries","remedy","sold_exclusively_at","importer","manufactured_in","consumer_contact"};
+		StringBuilder builder = new StringBuilder();
+		builder.append(headers[0]);
+		for(int i = 1; i < headers.length; i++) {
+			builder.append("\t" + headers[i]);
+		}
+		return builder.toString();
+	}
 	
 	/**
 	 * The http://search.digitalgov.gov/developer/recalls.html API lacks
@@ -117,21 +128,6 @@ public class CPSC {
 	 * @param fileName
 	 */
 	public static void getMoreData(String inputFileName, String outputFileName) {
-		/*
-		 * there's a missing piece here - data mapping to tsv headers:
-		 * name_of_product
-		 *	units
-		 *	manufacturer
-		 *	hazard
-		 *	description
-		 *	incidents_injuries
-		 *	remedy
-		 *	sold_to
-		 *	sold_exclusively_at
-		 *	importer
-		 *	manufactured_in
-		 *	consumer_contact
-		 */
 		
 		//spread the requests out
 		final int SLEEP_TIMER = 601;
@@ -145,17 +141,6 @@ public class CPSC {
 		//counters
 		int httpErrors = 0;
 		int numRecords = 0;
-		
-		//the fields i am looking for in each visit to a page
-		String[] data = {
-				"units",
-				"description",
-				"incidents_injuries",
-				"remedy",
-				"sold_exclusively_at",
-				"importer",
-				"manufactured_in",
-			};
 
 		//file stuff
 		File inputFile;
@@ -174,6 +159,9 @@ public class CPSC {
 
 			//burn 1 line of headers in the read file
 			br.readLine();
+			
+			//print the file headers to output file
+			bw.write(getMoreDataTSVHeaders());
 			
 			//loop: read then write, over and over
 			String line;
@@ -196,144 +184,151 @@ public class CPSC {
 					try {
 						
 						Document doc = Jsoup.connect(url).get();
-						//Elements details = doc.select("div.details > *");
-						//Elements archived = doc.select("div.archived > *");
-						Elements details = doc.select("strong");
+						Elements details = doc.select("div.details > *");
 						Elements archived = doc.select("strong");
 						
-						//flag for 2 formats - will go false if either not found
-						boolean optimistic = true;
-						
 						//collection for a variety of data points, used to later print in order
-						Map<String,String> pairs = new HashMap<String,String>();
+						//Map<String,String> pairs = new HashMap<String,String>();
 						
 						// .details exist 
 						//it's possible an image can be collected from the 2nd table on every page
-						try {
-							for(Element ele : details) {
-								//units
-								if(ele.text().equalsIgnoreCase("Units")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//description
-								if(ele.text().equalsIgnoreCase("Description")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//incidents_injuries
-								if(ele.text().equalsIgnoreCase("Incidents/Injuries")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//remedy
-								if(ele.text().equalsIgnoreCase("Remedy")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//sold_exclusively_at
-								if(ele.text().equalsIgnoreCase("Sold exclusively at")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//importer
-								if(ele.text().equalsIgnoreCase("Importer")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-								//manufactured_in
-								if(ele.text().equalsIgnoreCase("Manufactured in")) {
-									System.out.print(ele.text() + " - ");
-									System.out.println(ele.nextElementSibling().text());
-								}
-							}
-						} catch (NullPointerException e) {
-							optimistic = false;
-						}
-						
-						// .archived exists
-						try {
-							//making an assumption here: <strong> tags indicate the data we are collecting
-							for(Element ele : archived) {
-								System.out.println(ele.text());
-								//another assumption: at least one <p> exists with a collection of <strong> inside
-								//for every <strong> inside a <p>, farm data								
-								try {
-									String category = ele.text().split(":")[0];
-									String content = ele.nextSibling().toString();
+						if(details.size() > 0) {
+							try {
+								for(Element ele : details) {
 									//name_of_product
-									if(category.equalsIgnoreCase("Name of product")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
-									}
-									//units
-									if(category.equalsIgnoreCase("units")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
+									if(ele.text().equalsIgnoreCase("Name of product")) {
+										builder.append("\t" + ele.nextElementSibling().text());
 									}
 									//manufacturer
-									if(category.equalsIgnoreCase("manufacturer")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
+									if(ele.text().equalsIgnoreCase("Manufacturer")) {
+										builder.append("\t" + ele.nextElementSibling().text());
 									}
 									//hazard
-									if(category.equalsIgnoreCase("hazard")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
-									}
-									//description
-									if(category.equalsIgnoreCase("description")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
+									if(ele.text().equalsIgnoreCase("Hazard")) {
+										builder.append("\t" + ele.nextElementSibling().text());
 									}
 									//sold_to
-									if(category.equalsIgnoreCase("sold to")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
-									}
-									//incidents_injuries
-									if(category.equalsIgnoreCase("incidents/injuries")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
-									}
-									//remedy
-									if(category.equalsIgnoreCase("remedy")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
+									if(ele.text().equalsIgnoreCase("Sold to")) {
+										builder.append("\t" + ele.nextElementSibling().text());
 									}
 									//sold_exclusively_at
-									if(category.equalsIgnoreCase("sold exclusively at")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
+									if(ele.text().equalsIgnoreCase("Sold exclusively at")) {
+										builder.append("\t" + ele.nextElementSibling().text());
+									}
+									//units
+									if(ele.text().equalsIgnoreCase("Units")) {
+										builder.append("\t" + ele.nextElementSibling().text());
+									}
+									//description
+									if(ele.text().equalsIgnoreCase("Description")) {
+										builder.append("\t" + ele.nextElementSibling().text());
+									}
+									//incidents_injuries
+									if(ele.text().equalsIgnoreCase("Incidents/Injuries")) {
+										builder.append("\t" + ele.nextElementSibling().text());
+									}
+									//remedy
+									if(ele.text().equalsIgnoreCase("Remedy")) {
+										builder.append("\t" + ele.nextElementSibling().text());
+									}
+									//sold_exclusively_at
+									if(ele.text().equalsIgnoreCase("Sold exclusively at")) {
+										builder.append("\t" + ele.nextElementSibling().text());
 									}
 									//importer
-									if(category.equalsIgnoreCase("importer")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
+									if(ele.text().equalsIgnoreCase("Importer")) {
+										builder.append("\t" + ele.nextElementSibling().text());
 									}
 									//manufactured_in
-									if(category.equalsIgnoreCase("manufactured_in")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
+									if(ele.text().equalsIgnoreCase("Manufactured in")) {
+										builder.append("\t" + ele.nextElementSibling().text());
 									}
 									//consumer_contact
-									if(category.equalsIgnoreCase("consumer contact")) {
-										System.out.print(category + " - ");
-										System.out.println(content);
+									if(ele.text().equalsIgnoreCase("Consumer contact")) {
+										builder.append("\t" + ele.nextElementSibling().text());
 									}
-								} catch(IndexOutOfBoundsException e) {
-									//do nothing - the element has no child tag and is not used
-								}			
+								}
+							} catch (NullPointerException e) {
+								//exception caught, means append an empty string
+								builder.append("\t" + "");//probably don't need that emptry string double quote
 							}
-						} catch (NullPointerException e) {
-							optimistic = false;
+						} else {
+							// .archived exists
+							try {
+								//making an assumption here: <strong> tags indicate the data we are collecting
+								int count = 0;
+								//for(Element ele : archived) {
+								for(int i = 0; i < archived.size(); i++) {
+									Element ele = archived.get(i);								
+									//i think there's a bug in the JSoup parser. 
+									//a select of all <strong> from 
+									//http://www.cpsc.gov/en/Recalls/2004/CPSC-Elkay-Manufacturing-Co-Announce-Recall-of-Bottled-Water-Coolers-/
+									//archive size = 12, but iteration goes twice only
+									
+									try {
+										String category = ele.text().split(":")[0];
+										String content = ele.nextSibling().toString();
+										//name_of_product
+										if(category.equalsIgnoreCase("Name of product")) {
+											builder.append("\t" + content);
+										}
+										//units
+										if(category.equalsIgnoreCase("units")) {
+											builder.append("\t" + content);
+										}
+										//manufacturer
+										if(category.equalsIgnoreCase("manufacturer")) {
+											builder.append("\t" + content);
+										}
+										//hazard
+										if(category.equalsIgnoreCase("hazard")) {
+											builder.append("\t" + content);
+										}
+										//description
+										if(category.equalsIgnoreCase("description")) {
+											builder.append("\t" + content);
+										}
+										//sold_to
+										if(category.equalsIgnoreCase("sold to")) {
+											builder.append("\t" + content);
+										}
+										//sold_exclusively_at
+										if(ele.text().equalsIgnoreCase("Sold exclusively_at")) {
+											builder.append("\t" + content);
+										}
+										//incidents_injuries
+										if(category.equalsIgnoreCase("incidents/injuries")) {
+											builder.append("\t" + content);
+										}
+										//remedy
+										if(category.equalsIgnoreCase("remedy")) {
+											builder.append("\t" + content);
+										}
+										//sold_exclusively_at
+										if(category.equalsIgnoreCase("sold exclusively at")) {
+											builder.append("\t" + content);
+										}
+										//importer
+										if(category.equalsIgnoreCase("importer")) {
+											builder.append("\t" + content);
+										}
+										//manufactured_in
+										if(category.equalsIgnoreCase("manufactured_in")) {
+											builder.append("\t" + content);
+										}
+										//consumer_contact
+										if(category.equalsIgnoreCase("consumer contact")) {
+											builder.append("\t" + content);
+										}
+									} catch(IndexOutOfBoundsException e) {
+										//exception caught, means append an empty string
+										builder.append("\t" + "");//probably don't need that emptry string double quote
+									}			
+								}
+							} catch (NullPointerException e) {
+								//do nothing - only the ID will get logged as a result - useful for troubleshooting later
+							}
 						}
-						
-						//termination condition
-						if(!optimistic) {
-							problems.add("new format found - check url: " + url);
-						}
-
 						builder.append("\n");
 						System.out.println(numRecords + ": " + builder.toString());
 						bw.write(builder.toString());
