@@ -63,7 +63,7 @@ public class recommenderActivity extends Activity {
 			        out.close();
 			        responseString = out.toString();
 				     String of = JSONAnalysis(responseString);
-				     String sub = JSONAnalysis(responseString);
+				     String sub = JSONAnalysis1(responseString);
 				     rcd.setText(of);
 				     subs.setText(sub);
 				     
