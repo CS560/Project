@@ -1,0 +1,53 @@
+For training a naive bayes classifier
+
+1. Create a new project folder
+2. Save the data,src and pom.xml files to the project folder.
+3. Follow instructions in the data file in data folder to download the flat text data which contains information
+   about recent car recalls.
+4. After extracting txt file try to copy some 20000 data entries into a new txt file and rename it with a simple name to work with ease first.
+5. Then, open a terminal in your cloudera (verify your hdfs is at good health and your internet connectivity) and 
+   enter command ---> $ mvn clean package assembly:single
+   This will generate jar files for the java files written to convert txt to sequential files, training a classifier,
+   and classifying new data entries.
+6. Now, your jar files are generated in a new folder named target in your project folder.
+7. Now, for converting our txt data into sequential files run the following command :
+   $ java -cp target/cars-naive-bayes-1.0-jar-with-dependencies.jar project.bayes.CarsTXTToSeq data/carstotal.txt carstotal-seq
+	(Here, i had renamed my FLAT_CMPL.txt file as carstotal.txt, if you had renamed it as auto.txt then give auto.txt in place of carstotal.txt to address data file in above step)
+8. Now, you can see your sequential data file in project folder on which mahout can directly works on.
+9. Next, upload this sequential file to hadoop using command : $ hadoop fs -put carstotal-seq carstotal-seq
+10. sparse this sequential file into vectors using command : $ mahout seq2sparse -i carstotal-seq -o carstotal-vectors
+11. Split the vectors into training and testing vectors to train the classifier using command : 
+    $ mahout split -i carstotal-vectors/tfidf-vectors --trainingOutput train-vectors --testOutput test-vectors --randomSelectionPct 40 --overwrite --sequenceFiles -xm sequential
+12. After generating train and test vectors, now train the classifier with train-vectors using 
+    command : $ mahout trainnb -i train-vectors -el -li labelindex -o model -ow -c
+13. It creates the model(matrix word id x label id) and a label index(association label and label id). To test that the classifier is working properly on the training et use command :$ mahout testnb -i train-vectors -m model -l labelindex -ow -o carstotal-testing -c
+    it will generate a confusion matrix and the accuracy of identifying training data on the top of confusion matrix.
+14. You can also test the testing vectors with the command : $ mahout testnb -i test-vectors -m model -l labelindex -ow -o carstotal-testing -c
+    It will show you the accuracy of identifying test vectors by classifier. ( Unfortunately, this testing was unable to generate confusion matrix after map reducing )
+
+
+For Classifying data :
+
+1. You can directly download my model, labelindex, df-count , dictionary.file-0 files for classifying data directly with skipping above steps. I had done trained almost entire data file in this files.
+2. Or follow below steps to generate model, labelindex, df-count , dictionary.file-0 files after doing training a naive bayes classifier steps.
+   hadoop fs -get labelindex labelindex
+   hadoop fs -get model model
+   hadoop fs -get tweets-vectors/dictionary.file-0 dictionary.file-0
+   hadoop fs -getmerge tweets-vectors/df-count df-count
+
+3. Put the data records you want to classify in a txt file in data folder.(I had done with a file named carstoclassify.txt). Run the follow command to classify that file. 
+   $ java -cp target/cars-naive-bayes-1.0-jar-with-dependencies.jar project.bayes.Classifier model labelindex dictionary.file-0 df-count data/carstoclassify.txt
+4. You can write the classified results into a text file using command : 
+   $ java -cp target/cars-naive-bayes-1.0-jar-with-dependencies.jar project.bayes.Classifier model labelindex dictionary.file-0 df-count data/carstoclassify.txt > carstoclassifyresult.txt
+5. Now, you can find your carstoclassifyresult.txt file in your project folder which contains information about classified recall category and numbers that show the similarity
+   level with other recall categories.
+
+
+Note :
+
+See my terminal execution files(contain my execution process in cloudera terminal) for your reference while executing the above lines. 
+
+
+
+
+

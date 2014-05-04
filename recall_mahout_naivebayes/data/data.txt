@@ -1,0 +1,8 @@
+I had taken flat txt file of data that contains information regarding recent recalls related to cars.
+
+I had downloaded that file from the below link 
+
+http://www-odi.nhtsa.dot.gov/downloads/flatfiles.cfm
+
+Please, FLAT_CMPL.zip file and extract it for input data in txt format. And,read CMPL.txt file for 
+more information about the data in text file like type of information provided in each column.
