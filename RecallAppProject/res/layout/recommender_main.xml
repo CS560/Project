@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="left"
+    android:background="@drawable/background1">
+
+    <TextView
+        android:id="@+id/UN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/UserName"
+        android:layout_alignParentLeft="true"
+        android:text="Username: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/enter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/UserName"
+    
+        android:layout_marginTop="34dp"
+        android:text="Enter" />
+    <TextView
+        android:id="@+id/subS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:text="Subscripted:    "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/subslist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/subS"
+        android:layout_toRightOf="@+id/subS"
+        android:text="...."
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/rcd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/rcdT"
+        android:layout_toRightOf="@+id/rcdT"
+        android:text="......."
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/UserName"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="77dp"
+        android:layout_toRightOf="@+id/UN"
+        android:background="#ffffff"
+        android:ems="10"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/rcdT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/subS"
+        android:layout_marginTop="38dp"
+        android:text="Recommend:   "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+</RelativeLayout>

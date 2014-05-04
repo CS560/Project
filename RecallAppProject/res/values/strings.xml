@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">RecallAppProject</string>
+    <string name="action_settings">Settings</string>
+    <string name ="org_prompt">Select  Organization</string>
+    <string name ="category_prompt">Select  Category</string>
+    <string name="subcategory_prompt">Select Subcategory</string>
+    
+
+</resources>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+  <LinearLayout
+    android:orientation="vertical"
+  	android:layout_width="match_parent"
+  	android:layout_height="match_parent">
+  <!-- title Label -->
+  <TextView android:id="@+id/title_label"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dip"
+            android:textStyle="bold"
+            android:paddingTop="10dip"
+            android:paddingBottom="10dip"/>
+  <!-- manufacturer Label -->
+  <TextView android:id="@+id/mf_label"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="manufacturer "
+            android:paddingBottom="30dip"/>
+  <!-- Description Label -->
+  <TextView android:id="@+id/description_label"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="30dip"/>
+  <!-- Date Label -->
+  <TextView
+      android:id="@+id/Date_label"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:gravity="left"
+      android:text="Date: "
+      android:textSize="9dp"
+      android:textStyle="bold"
+      android:paddingBottom="10dip" />
+  <!-- Link Label -->
+  <TextView
+      android:id="@+id/Link_label"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:clickable="true"
+      android:autoLink="web"
+      android:gravity="left"
+      android:text="Link:"
+      android:textSize="10dp"
+      android:textStyle="bold" 
+      android:paddingBottom="10dip"/>
+</LinearLayout>
+</ScrollView>
