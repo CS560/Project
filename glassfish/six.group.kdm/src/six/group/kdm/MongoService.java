@@ -28,33 +28,39 @@ public class MongoService {
 			Set<String> subscriptions = user.subscriptions;
 			String subs = "";
 			Iterator<String> it = subscriptions.iterator();
-			
 			if(it.hasNext()) {
 				subs = it.next();
 			}
 			while(it.hasNext()) {
 				subs += "," + it.next();
 			}
-			
 			String recommendation = recommender.recommend(user.username);
-
 			return "{\"recommendation\":\"" + recommendation + "\",\"subscriptions\":\"" + subs + "\"}";
 		} catch (UnknownHostException e) {
 			//do nothing
 			//have the app degrade gracefully by simply not producing a recommendation
+			return "{\"error\":\"" + e.getMessage() + "}";
 		}
-		
-
-		return "{\"error\":\"error\"}";
-
 	}
 	@POST
 	@Path("auth")
 	@Produces("application/json")
-	@Consumes("application/x-www-form-urlencoded") //actually needs to be forms
+	@Consumes("application/x-www-form-urlencoded") 
 	public String login(@FormParam("username") String username, @FormParam("password") String password) {
-		
-		return "{'username':'" + username + "','password':'" + password + "'}";
+		try {
+			AppUser user = MongoUtil.getAppUser(username);
+			if(user.username.equalsIgnoreCase(username) && user.password.equalsIgnoreCase(password)) {
+				return "{\"auth\":\"true\"}";
+			} else {
+				return "{\"auth\":\"false\"}";
+			}
+		} catch (UnknownHostException e) {
+			//do nothing
+			//have the app degrade gracefully by simply not producing a recommendation
+			return "{\"error\":\"" + e.getMessage() + "\"}";
+		} catch (NullPointerException e) {
+			return "{\"error\":\"" + e.getMessage() + "\"}";
+		}
 	}
 
 }

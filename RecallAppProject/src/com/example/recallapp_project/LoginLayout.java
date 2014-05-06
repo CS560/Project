@@ -22,6 +22,7 @@ public class LoginLayout extends Activity {
 	Button ok;
 	private String resp;
 	private String errorMsg;
+	private String authUrl = "http://10.10.88.24:8080/six.group.kdm/rest/mongo/auth";
 	
 	//called on creation
 	@Override
@@ -46,7 +47,7 @@ public class LoginLayout extends Activity {
 						postParameters.add(new BasicNameValuePair("password",pw.getText().toString()));
 						String response = null;
 						try {
-							response = Http.post("http://10.10.88.24:8080/six.group.kdm/rest/mongo/auth",postParameters);
+							response = Http.post(authUrl,postParameters);
 							String res = response.toString();
 							resp = res;
 						} catch (Exception e) {

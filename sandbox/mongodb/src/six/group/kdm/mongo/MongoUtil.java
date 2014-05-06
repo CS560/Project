@@ -27,7 +27,6 @@ public class MongoUtil {
 			String s = cursor.next().toString();
 			JSONObject j = new JSONObject(s);
 			user.username = j.getString("username");
-			user.password = j.getString("password");
 			JSONArray subs = j.getJSONArray("subscriptions");
 			for(int i = 0; i < subs.length(); i++) {
 				user.subscriptions.add(subs.getString(i));
