@@ -33,6 +33,10 @@
             android:label="@string/app_name" >
         </activity>
         <activity
+            android:name="com.example.recallapp_project.ProfileLayout"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
             android:name="com.example.recallapp_project.recommenderActivity"
             android:label="@string/app_name" >
             </activity>

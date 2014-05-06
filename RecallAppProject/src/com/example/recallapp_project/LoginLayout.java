@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.firstapp.clientside.SimpleHttpClient;
+import com.example.firstapp.clientside.Http;
 
 @SuppressLint("NewApi")
 public class LoginLayout extends Activity {
@@ -46,9 +46,9 @@ public class LoginLayout extends Activity {
 						postParameters.add(new BasicNameValuePair("password",pw.getText().toString()));
 						String response = null;
 						try {
-							response = SimpleHttpClient.executeHttpPost("http://localhost:8080/six.group.kdm/rest/mongo/auth",postParameters);
+							response = Http.post("http://10.10.88.24:8080/six.group.kdm/rest/mongo/auth",postParameters);
 							String res = response.toString();
-							resp = res.replaceAll("\\s+", "");//what this do?
+							resp = res;
 						} catch (Exception e) {
 							e.printStackTrace();
 							errorMsg = e.getMessage();

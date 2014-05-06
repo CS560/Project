@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -51,9 +52,9 @@ public class MongoService {
 	@Path("auth")
 	@Produces("application/json")
 	@Consumes("application/x-www-form-urlencoded") //actually needs to be forms
-	public String login(String msg) {
+	public String login(@FormParam("username") String username, @FormParam("password") String password) {
 		
-		return "{\"authorized\":\"false\"}";
+		return "{'username':'" + username + "','password':'" + password + "'}";
 	}
 
 }
