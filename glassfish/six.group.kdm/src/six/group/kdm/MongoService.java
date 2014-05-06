@@ -4,7 +4,9 @@ import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -44,6 +46,14 @@ public class MongoService {
 
 		return "{\"error\":\"error\"}";
 
+	}
+	@POST
+	@Path("auth")
+	@Produces("application/json")
+	@Consumes("application/x-www-form-urlencoded") //actually needs to be forms
+	public String login(String msg) {
+		
+		return "{\"authorized\":\"false\"}";
 	}
 
 }
