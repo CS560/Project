@@ -7,11 +7,11 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 
-public class SingleFDAItemActivity extends Activity{
+public class SingleCPSCItemActivity extends Activity{
 
 		// 4 information from xml
-	static final String Title ="comments";
-	static final String Description ="description";
+	static final String Title ="keywords";
+	static final String Description ="descriptions";
 	static final String Date ="last_modified";
 	static final String Link="url";
 	@Override
@@ -22,7 +22,7 @@ public class SingleFDAItemActivity extends Activity{
         // getting intent data
         Intent in = getIntent();
         
-        // Get XML values from previous intent
+        // Get json values from previous intent
         String title = in.getStringExtra(Title);
         String description = in.getStringExtra(Description);
         String date = in.getStringExtra(Date);

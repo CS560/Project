@@ -118,10 +118,17 @@ public class SubCategoryMenu1 extends Activity implements OnItemSelectedListener
 //    	    	mft.setEnabled(true);
     	    	
     		}else{
+    			sp3.setEnabled(false);
     			mft.setEnabled(false);
+    			search.setEnabled(true);
+    			search.getText().clear();
+    			mft.getText().clear();
     			categories=new ArrayList<String>();
-    			categories.add("1");
-    			categories.add("2");
+    			categories.add("Safety");
+    			categories.add("Property Damage");
+    			categories.add("Children");
+    			categories.add("Defective");
+
     	          
     	        adp5=new ArrayAdapter<String>(this,
     	                  android.R.layout.simple_dropdown_item_1line,categories);
@@ -202,20 +209,6 @@ public class SubCategoryMenu1 extends Activity implements OnItemSelectedListener
  	 				System.out.println("org: "+b+"cate:   "+b1+"subcate: "+b2+"Search: "+b3);
 				    System.out.println(orgText+"cate: "+cText+"subcate: "+scText+"search: "+srhText);
 	                startActivity(intent);
-// 				}else if(orgText.equals("USDA")){
-// 					Intent intent1 = new Intent(ct, USDAListActivity.class);
-// 					Bundle b =new Bundle();
-// 					Bundle b1 =new Bundle();
-// 					Bundle b2 = new Bundle();
-// 	 				b.putString("ctg", cText);
-// 	 				b1.putString("sctg", scText);
-// 	 				b2.putString("org", orgText);
-// 	 				intent1.putExtras(b);
-// 	 				intent1.putExtras(b1);
-// 	 				intent1.putExtras(b2);
-// 	 				System.out.println("-------"+b+"======="+b1+"+++++++"+b2);
-//				    System.out.println(cText+"+++++++"+scText+"////////"+orgText);
-//				    startActivity(intent1);
  				}else if(orgText.equals("NHTSA")){
  					Intent intent2 = new Intent(ct, NHTSAListActivity.class);
  					Bundle b =new Bundle();
@@ -237,12 +230,15 @@ public class SubCategoryMenu1 extends Activity implements OnItemSelectedListener
  					Intent intent3 = new Intent(ct, CPSCListActivity.class);
  					Bundle b1 =new Bundle();
  					Bundle b2 = new Bundle();
- 	 				b1.putString("sctg", scText);
+ 					Bundle b3 = new Bundle();
+ 	 				b1.putString("ctg", cText);
  	 				b2.putString("org", orgText);
+ 	 				b3.putString("srh", srhText);
  	 				intent3.putExtras(b1);
  	 				intent3.putExtras(b2);
- 	 				System.out.println("======="+b1+"+++++++"+b2);
-				    System.out.println(cText+"+++++++"+scText+"////////"+orgText);
+ 	 				intent3.putExtras(b3);
+ 	 				System.out.println("======="+b1+"+++++++"+b2+"/////////"+srh);
+				    System.out.println(cText+"+++++++////////"+orgText+",,,,,,,,,"+srhText);
 				    startActivity(intent3);
  				}
  			}

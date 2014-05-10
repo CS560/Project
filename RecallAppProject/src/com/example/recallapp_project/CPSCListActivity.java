@@ -27,11 +27,11 @@ public class CPSCListActivity extends ListActivity {
 	//test url xml format
 			String URL = "";
 			// 5 vaules we will parsing to our app
-			static final String Recall="results";
-			static final String Title ="product_types";
-			static final String Description ="descriptions";
-			static final String Date ="recall_date";
-			static final String Link="recall_url";
+			static final String Recall="docs";
+			static final String Title ="keywords";
+			static final String Description ="description";
+			static final String Date ="last_modified";
+			static final String Link="url";
 			JSONArray recalls=null;
 			ArrayList<HashMap<String, String>> recallRList;
 			private ProgressDialog pD;
@@ -57,7 +57,7 @@ public class CPSCListActivity extends ListActivity {
 		                String link = ((TextView) view.findViewById(R.id.link)).getText().toString();
 		                 
 		                // Starting new intent
-		                Intent in = new Intent(getApplicationContext(), SingleOItemActivity.class);
+		                Intent in = new Intent(getApplicationContext(), SingleCPSCItemActivity.class);
 		                in.putExtra(Title, title);
 		                in.putExtra(Description, description);
 		                in.putExtra(Date, pubDate);
@@ -86,11 +86,15 @@ public class CPSCListActivity extends ListActivity {
 		            // Creating service handler class instance
 		            HttpHandler sh = new HttpHandler();
 		    		Bundle b=getIntent().getExtras();
-		    		String sbc = b.getString("sctg");
+		    		String cg = b.getString("ctg");
 		    		String org = b.getString("org");
-
-		    		System.out.println(sbc+"`````"+org);
-		            URL = "http://api.usa.gov/recalls/search.json?&query="+sbc+"&organization="+org+"&sort=date&per_page=50";
+		    		String srh =b.getString("srh");
+		    		System.out.println(cg+"`````"+org);
+		    		if(srh.equals("")){
+		    			URL= "http://134.193.136.127:8983/solr/group6_shard1_replica1/select?q=name%3A"+org+"+AND+resourcename%3A"+cg+"%0A&rows=2000&wt=json";
+		    		}else{
+		    			URL= "http://134.193.136.127:8983/solr/group6_shard1_replica1/select?q=name%3A"+org+"+AND+resourcename%3A"+cg+"+AND+description%3A"+srh+"%0A&rows=2000&wt=json";
+		    		}
 		            // Making a request to url and getting response
 		            String js = sh.makeHttpCall(URL, HttpHandler.GET);
 		            System.out.println(URL);
@@ -99,7 +103,7 @@ public class CPSCListActivity extends ListActivity {
 		            if (js != null) {
 		                try {
 		                    JSONObject jsonObj = new JSONObject(js);
-		                    JSONObject jo = jsonObj.getJSONObject("success"); 
+		                    JSONObject jo = jsonObj.getJSONObject("response"); 
 		                    // Getting JSON Array node
 		                    recalls = jo.getJSONArray(Recall);
 		 

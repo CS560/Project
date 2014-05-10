@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="1dp"
-        android:text="ALL our data source come from FDA, USDA, NHTSA and CPSC" 
+        android:text="ALL our data source come from FDA, USDA, CPSC and NHTSA" 
         android:textColor="#000000"/>
     <TextView
         android:id="@+id/textView1"

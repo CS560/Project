@@ -23,6 +23,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class NHTSAListActivity extends ListActivity {
@@ -209,8 +210,8 @@ public class NHTSAListActivity extends ListActivity {
                     	alert.show();
                     	
                     }else{
-            
-            ListAdapter adapter = new SimpleAdapter(
+                    	Toast.makeText(getApplicationContext(), numr+" results", Toast.LENGTH_SHORT).show();
+                    	ListAdapter adapter = new SimpleAdapter(
                     NHTSAListActivity.this, recallRList,
                     R.layout.recent_recall_view, new String[] { Title,Date,Description,Link,Keywords }, new int[] {
                             R.id.title, R.id.pubDate, R.id.description,R.id.link,R.id.manufacturer });

@@ -93,6 +93,7 @@ public class recommenderActivity extends Activity {
 						rcd+=r+",";
 						count++;
 						if(count==3)
+							
 							break;
 						}
 				} catch (JSONException e) {

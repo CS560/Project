@@ -24,6 +24,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class FDAListActivity extends ListActivity {
@@ -96,6 +97,7 @@ public class FDAListActivity extends ListActivity {
 	 
 	        @Override
 	        protected Void doInBackground(Void... arg0) {
+	        	
 	            // Creating service handler class instance
 	            HttpHandler sh = new HttpHandler();
 	    		Bundle b=getIntent().getExtras();
@@ -121,6 +123,7 @@ public class FDAListActivity extends ListActivity {
 	                    recalls = jo.getJSONArray(Recall);
 	                    String numr = jo.getString(num);
 	                    System.out.println(numr);
+	                    
 	                    // looping through All recalls
 	                    for (int i = 0; i < recalls.length(); i++) {
 	                        JSONObject jo1 = recalls.getJSONObject(i);
@@ -189,7 +192,7 @@ public class FDAListActivity extends ListActivity {
 	                    System.out.println(numr);
 	                    if (numr.equals("0")){
 	                    	alt_bld = new AlertDialog.Builder(FDAListActivity.this);
-	            			alt_bld.setMessage("Dont have the record you are looking for");
+	            			alt_bld.setMessage("Don't have the record you are looking for");
 	            			alt_bld.setCancelable(false);
 	            			alt_bld.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 	                    		public void onClick(DialogInterface dialog, int id) {
@@ -203,10 +206,10 @@ public class FDAListActivity extends ListActivity {
 	                    	alert.show();
 	                    	
 	                    }else{
-	            
-	            ListAdapter adapter = new SimpleAdapter(
-	                    FDAListActivity.this, recallRList,
-	                    R.layout.recent_recall_view, new String[] { Title,Date,Description,Link }, new int[] {
+	                    	Toast.makeText(getApplicationContext(), numr+" results", Toast.LENGTH_SHORT).show();
+	                    	ListAdapter adapter = new SimpleAdapter(
+	                    	FDAListActivity.this, recallRList,
+	                    	R.layout.recent_recall_view, new String[] { Title,Date,Description,Link }, new int[] {
 	                            R.id.title, R.id.pubDate, R.id.description,R.id.link });
 	 
 	            setListAdapter(adapter);
