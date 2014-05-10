@@ -86,7 +86,7 @@ public class CPSCListActivity extends ListActivity {
 		            // Creating service handler class instance
 		            HttpHandler sh = new HttpHandler();
 		    		Bundle b=getIntent().getExtras();
-		    		String cg = b.getString("ctg");
+		    		String cg = b.getString("ctg").replace(' ', '+');
 		    		String org = b.getString("org");
 		    		String srh =b.getString("srh");
 		    		System.out.println(cg+"`````"+org);
