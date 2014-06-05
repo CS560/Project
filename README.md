@@ -7,7 +7,7 @@ Instructor: Dr. Yugyung Lee
 Assistant: PhD candidate Feichen Shen 
 
 Students: 
-Wang Zhang 
-James Clark 
-Tirumala Reddy Konireddy
+Wang Zhang, 
+James Clark, 
+Tirumala Reddy Konireddy, 
 Jagadish Tirumalasetty
