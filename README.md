@@ -9,5 +9,5 @@ Assistant: PhD candidate Feichen Shen
 Students: 
 Wang Zhang 
 James Clark 
-Tirumala 
+Tirumala Reddy Konireddy
 Jagadish Tirumalasetty
