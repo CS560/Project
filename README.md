@@ -2,6 +2,8 @@ Project
 =======
 We are a University of Missouri - Kansas City graduate software engineering team training in big data knowledge discovery and management. 
 
+Please refer to the user manual in the final report for a quick demonstration.
+
 Instructor: Dr. Yugyung Lee
 
 Assistant: PhD candidate Feichen Shen 
